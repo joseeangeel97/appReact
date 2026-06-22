@@ -1,0 +1,19 @@
+main {
+  background-image: url('../assets/fondoHome.jpg');
+}
+
+.form-section {
+  border-radius: 2rem;
+  display: flex;
+  padding: auto;
+  margin: auto;
+  height: 50vh;
+  width: 70vh;
+  background: linear-gradient(to top, lab(25% 30 -40), lab(85% -20 50));
+}
+
+form {
+  align-items: center;
+  align-self: center;
+  padding: 1rem 1.5rem 1rem 1.5rem;
+}

@@ -1,4 +1,4 @@
-function Header() {
+export default function Header() {
   return (
     <header>
       <h2>MiniHub</h2>
@@ -10,5 +10,3 @@ function Header() {
     </header>
   );
 }
-
-export default Header;
