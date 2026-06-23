@@ -1,11 +1,13 @@
+import { Link } from 'react-router-dom';
+
 export default function Header() {
   return (
     <header>
-      <h2>MiniHub</h2>
+      <h2>EventHub Mini</h2>
       <nav>
-        <a href='#'>Inicio</a>
-        <a href='#'>Proyectos</a>
-        <a href='#'>Contacto</a>
+        <Link to='/'>Inicio</Link>
+        <Link to='/about'>Eventos</Link>
+        <Link to='/hall'>Hall</Link>
       </nav>
     </header>
   );

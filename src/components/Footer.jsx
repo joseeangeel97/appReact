@@ -1,8 +1,8 @@
 export default function Footer() {
   return (
-    <Footer>
+    <footer>
       <div id='logo'></div>
       <h4>IN AETERNUM</h4>
-    </Footer>
+    </footer>
   );
 }

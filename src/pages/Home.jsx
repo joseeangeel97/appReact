@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <main>
       <section className={styles['title-section']}>
-        <h1>MiniHub</h1>
+        <h1>EventHub Mini</h1>
         <p>Tu lugar de confianza</p>
       </section>
       <section className={sectionClass}>
