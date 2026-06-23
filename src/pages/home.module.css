@@ -5,7 +5,48 @@ main {
 }
 
 .title-section {
+  width: 55vw;
+  height: 15vh;
+  margin-bottom: 4rem;
   text-align: center;
+  box-shadow: 0px 10px 15px 8px aquamarine;
+  background: linear-gradient(to top, lab(25% 30 -40), lab(85% -20 50));
+  border-bottom-left-radius: 100%;
+  border-bottom-right-radius: 100%;
+  border-top-left-radius: 25rem;
+  border-top-right-radius: 25rem;
+
+  h1 {
+    line-height: 1rem;
+    letter-spacing: 1.25rem;
+    font:
+      600 2rem 'Franklin Gothic Medium',
+      'Arial Narrow',
+      Arial,
+      sans-serif;
+    color: aliceblue;
+    text-shadow: 5px -5px 5px aquamarine;
+  }
+
+  p {
+    padding-top: 1rem;
+    font:
+      200 1rem 'Franklin Gothic Medium',
+      'Arial Narrow',
+      Arial,
+      sans-serif;
+    color: aliceblue;
+    text-shadow: -2px 2px 4px aquamarine;
+    letter-spacing: 1.5rem;
+  }
+}
+
+.transitionBox {
+  transition:
+    width 0.8s ease,
+    height 0.8s ease,
+    border-radius 0.8s ease,
+    background 0.8s ease;
 }
 
 .form-section {
@@ -75,6 +116,7 @@ main {
   margin: auto;
   display: flex;
   justify-content: center;
+  overflow: hidden;
 
   article {
     display: flex;
@@ -89,25 +131,24 @@ main {
     box-shadow: 0px 0px 35px aquamarine;
     cursor: pointer;
     transition:
-      width 1.5s,
-      height 1.5s;
+      transform 0.5s ease,
+      opacity 0.5s ease;
     animation: myAnimation 1s linear infinite;
     animation-play-state: paused;
 
     &:hover {
-      width: 65%;
-      height: 65%;
+      transform: scale(1.05);
       animation-play-state: running;
     }
 
     h4 {
-      margin: 0;
+      margin: 0 auto 0 0.65em;
       font:
         oblique 400 2rem 'Franklin Gothic Medium',
         'Arial Narrow',
         Arial,
         sans-serif;
-      letter-spacing: 1.2rem;
+      letter-spacing: 1.4rem;
       text-shadow: 2px 2px black;
       color: lab(85.77% -16.27 84.67);
     }
@@ -115,6 +156,8 @@ main {
 
   form {
     display: none;
+    opacity: 0;
+    pointer-events: none;
   }
 }
 
