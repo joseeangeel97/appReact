@@ -1,7 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './home.module.css';
 
-export default function Home() {
+export default function Login() {
+  const navigate = useNavigate();
+
+  const handleGoProfile = () => {
+    navigate('/profile');
+  };
   const [open, setOpen] = useState(false);
   const sectionClass = [
     styles.transitionBox,
@@ -13,7 +19,7 @@ export default function Home() {
   return (
     <main>
       <section className={styles['title-section']}>
-        <h1>EventHub Mini</h1>
+        <h1>EventHub Paternoster</h1>
         <p>Tu lugar de confianza</p>
       </section>
       <section className={sectionClass}>
@@ -26,7 +32,17 @@ export default function Home() {
           <input type='text' name='name' id='name' />
           <label htmlFor='password'>Seña</label>
           <input type='password' name='password' id='password' />
-          <button type='submit'>Entrar</button>
+
+          <button
+            onClick={() => handleGoProfile()}
+            type='submit'
+            onClick={(e) => {
+              e.preventDefault();
+              handleGoProfile();
+            }}
+          >
+            Entrar
+          </button>
         </form>
       </section>
     </main>

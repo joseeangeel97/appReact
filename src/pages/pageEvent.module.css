@@ -1,0 +1,32 @@
+.pageEventMain {
+  padding: 2rem 1.5rem 3rem;
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(8, 12, 20, 0.95), rgba(0, 0, 0, 0.95));
+}
+
+.pageEventHeader {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.pageEventHeader h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #fff;
+}
+
+.pageEventHeader p {
+  margin: 0;
+  color: #d0d0d0;
+  max-width: 40rem;
+  line-height: 1.75;
+}
+
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}

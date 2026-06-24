@@ -1,0 +1,87 @@
+.eventCard {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+  align-items: center;
+}
+
+.imageFrame {
+  width: 100%;
+  min-height: 160px;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.imageFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.eventContent {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.eventHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eventType {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12rem;
+  background: rgba(255, 255, 255, 0.14);
+  color: #f7f7f7;
+}
+
+.eventTitle {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #fff;
+}
+
+.eventMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: #d6d6d6;
+  font-size: 0.95rem;
+}
+
+.eventDescription {
+  color: #e8e8e8;
+  line-height: 1.6;
+}
+
+.reserveButton {
+  justify-self: start;
+  margin-top: 0.5rem;
+  padding: 0.85rem 1.2rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 180, 0, 0.85));
+  color: #111;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.reserveButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
