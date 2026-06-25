@@ -12,69 +12,45 @@ export default function Hall() {
 
   return (
     <>
-      <Header className={styles.hallHeader} />
-      <main className={styles.pageHall}>
-        {/* Sección: ¿A qué nos dedicamos? */}
-        <section className={styles.aboutSection}>
-          <h2>¿A qué nos dedicamos?</h2>
-          <p>
-            Somos una plataforma de eventos privados diseñada exclusivamente
-            para gente selecta. Nos especializamos en crear experiencias únicas
-            <span style={{ display: 'none' }}>SATOR</span> y memorables
-            <span style={{ display: 'none' }}>TENET</span> , curadas
-            cuidadosamente para un público discerniente que valora la
-            exclusividad y la calidad. Tres puntos de entrada, una contraseña
-            inicial: recuerda este nombre de leyenda que trasciende el tiempo.
-          </p>
-        </section>
+      <body>
+        <Header className={styles.hallHeader} />
+        <main className={styles.pageHall}>
+          {/* Sección: ¿A qué nos dedicamos? */}
+          <section className={styles.aboutSection}>
+            <h2>¿A qué nos dedicamos?</h2>
+            <p>
+              Somos una plataforma de eventos privados diseñada exclusivamente
+              para gente selecta. Nos especializamos en crear experiencias
+              únicas
+              <span style={{ display: 'none' }}>SATOR</span> y memorables
+              <span style={{ display: 'none' }}>TENET</span> , curadas
+              cuidadosamente para un público discerniente que valora la
+              exclusividad y la calidad. Tres puntos de entrada, una contraseña
+              inicial: recuerda este nombre de leyenda que trasciende el tiempo.
+            </p>
+          </section>
 
-        {/* Sección: Acceso Exclusivo */}
-        <section className={styles.accessSection}>
-          <h2>¿Quieres acceder?</h2>
-          <p>
-            Si deseas formar parte de nuestra comunidad, las respuestas ya han
-            sido entregadas. Solo necesitas <strong>ver más allá</strong> del
-            texto, observar cuidadosamente lo que se oculta en las líneas, y
-            utilizar el santo y seña que encontrarás en estas páginas.{' '}
-            <em>Las pistas están a la vista para quien sepa mirar.</em>
-          </p>
-          <button
-            type='button'
-            className={styles.homeButton}
-            onClick={handleGoHome}
-          >
-            Acceder
-          </button>
-        </section>
-
-        {/* Sección: Clase de eventos */}
-        <section className={styles.eventsSection}>
-          <h2>Clase de eventos que ofrecemos</h2>
-          <ul>
-            <li>Cócteles de networking exclusivos</li>
-            <li>Galas y eventos de gala privados</li>
-            <li>Conferencias y seminarios selectos</li>
-            <li>Experiencias gastronómicas únicas</li>
-            <li>Eventos corporativos de alto nivel</li>
-            <li>Celebraciones y aniversarios personalizados</li>
-            <li>Presentaciones de productos de lujo</li>
-          </ul>
-        </section>
-
-        {/* Sección: Por qué nació este proyecto */}
-        <section className={styles.originSection}>
-          <h2>Por qué nació este proyecto</h2>
-          <p>
-            Nació de la necesidad de crear un espacio donde personas de
-            intereses similares y estándares elevados pudieran conectar y
-            compartir experiencias auténticas. En un mundo saturado de eventos
-            masivos, decidimos ofrecer algo diferente: encuentros íntimos,
-            cuidadosamente organizados y accesibles solo para aquellos que
-            comparten nuestra visión de exclusividad y excelencia.
-          </p>
-        </section>
-      </main>
-      <Footer />
+          {/* Sección: Acceso Exclusivo */}
+          <section className={styles.accessSection}>
+            <h2>¿Quieres acceder?</h2>
+            <p>
+              Si deseas formar parte de nuestra comunidad, las respuestas ya han
+              sido entregadas. Solo necesitas <strong>ver más allá</strong> del
+              texto, observar cuidadosamente lo que se oculta en las líneas, y
+              utilizar el santo y seña que encontrarás en estas páginas.{' '}
+              <em>Las pistas están a la vista para quien sepa mirar.</em>
+            </p>
+            <button
+              type='button'
+              className={styles.homeButton}
+              onClick={handleGoHome}
+            >
+              Acceder
+            </button>
+          </section>
+        </main>
+        <Footer />
+      </body>
     </>
   );
 }
