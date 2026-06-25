@@ -33,14 +33,7 @@ export default function Login() {
           <label htmlFor='password'>Seña</label>
           <input type='password' name='password' id='password' />
 
-          <button
-            onClick={() => handleGoProfile()}
-            type='submit'
-            onClick={(e) => {
-              e.preventDefault();
-              handleGoProfile();
-            }}
-          >
+          <button type='button' onClick={() => handleGoProfile()}>
             Entrar
           </button>
         </form>

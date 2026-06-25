@@ -1,5 +1,7 @@
 main {
-  background-image: url('../assets/fondoHome.jpg');
+  background-image: url('../assets/bg2.png');
+  background-repeat: no-repeat;
+  background-size: cover;
   background-color: rgba(0, 0, 0, 0.167);
   background-blend-mode: overlay;
   font-family: 'Cinzel Decorative', serif;
