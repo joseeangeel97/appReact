@@ -1,9 +1,9 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Event from '../components/event';
-import bg5 from '../assets/bg5.png';
-import bg6 from '../assets/bg6.png';
-import bg4 from '../assets/bg4.png';
+import bg5 from '../assets/fondos/bg5.png';
+import bg6 from '../assets/fondos/bg6.png';
+import bg4 from '../assets/fondos/bg4.png';
 import styles from './pageEvent.module.css';
 
 const promotedEvents = [

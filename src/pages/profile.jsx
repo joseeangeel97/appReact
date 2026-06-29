@@ -1,22 +1,50 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import bg4 from '../assets/bg4.png';
-import bg5 from '../assets/bg5.png';
-import bg6 from '../assets/bg6.png';
 import styles from './profile.module.css';
-
-const imageOptions = [
-  { id: 'bg4', src: bg4, label: 'Ocaso Selecto' },
-  { id: 'bg5', src: bg5, label: 'Noche Dorada' },
-  { id: 'bg6', src: bg6, label: 'Aura Ejecutiva' },
-];
 
 export default function Profile() {
   const [alias, setAlias] = useState('');
   const [phrase, setPhrase] = useState('');
   const [number, setNumber] = useState('');
-  const [selectedImage, setSelectedImage] = useState(imageOptions[0]);
+  const [imageOptions, setImageOptions] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagesStatus, setImagesStatus] = useState('loading');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadProfileImages() {
+      try {
+        const response = await fetch('/api/profile-images');
+
+        if (!response.ok) {
+          throw new Error('Profile images request failed');
+        }
+
+        const data = await response.json();
+        const images = Array.isArray(data.images) ? data.images : [];
+
+        if (!isMounted) {
+          return;
+        }
+
+        setImageOptions(images);
+        setSelectedImage(images[0] || null);
+        setImagesStatus(images.length > 0 ? 'ready' : 'empty');
+      } catch (error) {
+        if (isMounted) {
+          setImagesStatus('error');
+        }
+      }
+    }
+
+    loadProfileImages();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -79,18 +107,30 @@ export default function Profile() {
             <div className={styles.formRow}>
               <label>Selecciona tu imagen</label>
               <div className={styles.imagePicker}>
+                {imagesStatus === 'loading' && (
+                  <p className={styles.imageStatus}>Cargando imágenes...</p>
+                )}
+                {imagesStatus === 'empty' && (
+                  <p className={styles.imageStatus}>No hay imágenes disponibles</p>
+                )}
+                {imagesStatus === 'error' && (
+                  <p className={styles.imageStatus}>
+                    No se pudieron cargar las imágenes
+                  </p>
+                )}
                 {imageOptions.map((option) => (
                   <label
                     key={option.id}
                     className={`${styles.imageOption} ${
-                      selectedImage.id === option.id ? styles.selected : ''
+                      selectedImage?.id === option.id ? styles.selected : ''
                     }`}
+                    title={option.description || option.label}
                   >
                     <input
                       type='radio'
                       name='profileImage'
                       value={option.id}
-                      checked={selectedImage.id === option.id}
+                      checked={selectedImage?.id === option.id}
                       onChange={() => setSelectedImage(option)}
                     />
                     <img src={option.src} alt={option.label} />
@@ -102,7 +142,9 @@ export default function Profile() {
             <div className={styles.previewCard}>
               <div className={styles.previewHeader}>
                 <div className={styles.previewAvatar}>
-                  <img src={selectedImage.src} alt='Avatar seleccionado' />
+                  {selectedImage && (
+                    <img src={selectedImage.src} alt='Avatar seleccionado' />
+                  )}
                 </div>
                 <div className={styles.previewInfo}>
                   <h2>{alias || 'Alias pendiente'}</h2>
@@ -110,6 +152,7 @@ export default function Profile() {
                 </div>
               </div>
               <p>Número de perfil: {number || 'No asignado'}</p>
+              <p>Imagen: {selectedImage?.label || 'No seleccionada'}</p>
             </div>
 
             <button type='submit' className={styles.submitButton}>

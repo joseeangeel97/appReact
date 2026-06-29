@@ -1,5 +1,5 @@
 main {
-  background-image: url('../assets/bg2.png');
+  background-image: url('../assets/fondos/bg2.png');
   background-repeat: no-repeat;
   background-size: cover;
   background-color: rgba(0, 0, 0, 0.167);
@@ -98,6 +98,15 @@ main {
         background-color: lab(86.78% -24.28 85.04);
         filter: brightness(1.8), contrast(1.5);
       }
+    }
+
+    .errorMessage {
+      margin: 0;
+      color: #ffcbcb;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
     }
   }
 }
