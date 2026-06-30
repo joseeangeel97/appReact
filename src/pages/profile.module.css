@@ -108,6 +108,69 @@
   }
 }
 
+.profileCarousel {
+  width: min(100%, 480px);
+  margin: 0 auto;
+
+  .profileCarouselViewport.profileCarouselViewport {
+    width: 100%;
+    aspect-ratio: auto;
+    max-height: none;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .profileCarouselImageButton.profileCarouselImageButton {
+    display: block;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .profileCarouselImageButton.profileCarouselImageButton,
+  .profileCarouselTrack.profileCarouselTrack {
+    height: auto;
+  }
+
+  .profileCarouselTrack.profileCarouselTrack {
+    align-items: flex-start;
+  }
+
+  .profileCarouselImage.profileCarouselImage {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: unset;
+  }
+
+  .profileCarouselInfo {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #f8f8f8;
+
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    p {
+      margin: 0.55rem 0 0;
+      color: #dcdcdc;
+      line-height: 1.6;
+    }
+  }
+
+  @media (max-width: 700px) {
+    width: 100%;
+
+    .profileCarouselViewport.profileCarouselViewport {
+      aspect-ratio: auto;
+      max-height: none;
+    }
+  }
+}
+
 .previewCard {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -120,24 +183,39 @@
 .previewHeader {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
 .previewAvatar {
-  width: 82px;
-  height: 82px;
+  position: relative;
+
+  width: 10rem;
+  max-width: 100%;
+  height: 20vh;
+  box-sizing: border-box;
   border-radius: 1.25rem;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.35);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 
   img {
+    position: relative;
+    z-index: 1;
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
   }
 }
 
 .previewInfo {
+  min-width: 0;
+
   h2 {
     margin: 0;
     font-size: 1.5rem;

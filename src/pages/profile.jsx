@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ImageCarousel from '../components/ImageCarousel';
 import styles from './profile.module.css';
 
 export default function Profile() {
@@ -32,7 +33,7 @@ export default function Profile() {
         setImageOptions(images);
         setSelectedImage(images[0] || null);
         setImagesStatus(images.length > 0 ? 'ready' : 'empty');
-      } catch (error) {
+      } catch {
         if (isMounted) {
           setImagesStatus('error');
         }
@@ -52,6 +53,8 @@ export default function Profile() {
       `Perfil guardado:\nAlias: ${alias}\nFrase: ${phrase}\nNúmero: ${number}`,
     );
   };
+
+  const previewImageSrc = selectedImage?.src;
 
   return (
     <>
@@ -106,44 +109,60 @@ export default function Profile() {
 
             <div className={styles.formRow}>
               <label>Selecciona tu imagen</label>
-              <div className={styles.imagePicker}>
-                {imagesStatus === 'loading' && (
-                  <p className={styles.imageStatus}>Cargando imágenes...</p>
-                )}
-                {imagesStatus === 'empty' && (
-                  <p className={styles.imageStatus}>No hay imágenes disponibles</p>
-                )}
-                {imagesStatus === 'error' && (
-                  <p className={styles.imageStatus}>
-                    No se pudieron cargar las imágenes
-                  </p>
-                )}
-                {imageOptions.map((option) => (
-                  <label
-                    key={option.id}
-                    className={`${styles.imageOption} ${
-                      selectedImage?.id === option.id ? styles.selected : ''
-                    }`}
-                    title={option.description || option.label}
-                  >
-                    <input
-                      type='radio'
-                      name='profileImage'
-                      value={option.id}
-                      checked={selectedImage?.id === option.id}
-                      onChange={() => setSelectedImage(option)}
-                    />
-                    <img src={option.src} alt={option.label} />
-                  </label>
-                ))}
-              </div>
+              {imagesStatus === 'loading' && (
+                <p className={styles.imageStatus}>Cargando imágenes...</p>
+              )}
+              {imagesStatus === 'empty' && (
+                <p className={styles.imageStatus}>
+                  No hay imágenes disponibles
+                </p>
+              )}
+              {imagesStatus === 'error' && (
+                <p className={styles.imageStatus}>
+                  No se pudieron cargar las imágenes
+                </p>
+              )}
+              {imagesStatus === 'ready' && (
+                <ImageCarousel
+                  images={imageOptions}
+                  selectedImageId={selectedImage?.id}
+                  onImageChange={setSelectedImage}
+                  label='Seleccionar imagen de perfil'
+                  className={styles.profileCarousel}
+                  viewportClassName={styles.profileCarouselViewport}
+                  imageButtonClassName={styles.profileCarouselImageButton}
+                  trackClassName={styles.profileCarouselTrack}
+                  imageClassName={styles.profileCarouselImage}
+                  imageInfoClassName={styles.profileCarouselInfo}
+                />
+              )}
             </div>
 
             <div className={styles.previewCard}>
               <div className={styles.previewHeader}>
-                <div className={styles.previewAvatar}>
+                <div
+                  className={styles.previewAvatar}
+                  style={
+                    previewImageSrc
+                      ? { backgroundImage: `url("${previewImageSrc}")` }
+                      : undefined
+                  }
+                >
                   {selectedImage && (
-                    <img src={selectedImage.src} alt='Avatar seleccionado' />
+                    <img
+                      src={previewImageSrc}
+                      alt='Avatar seleccionado'
+                      onError={(event) => {
+                        const fallbackSrc = selectedImage.originalSrc;
+
+                        if (
+                          fallbackSrc &&
+                          event.currentTarget.src !== fallbackSrc
+                        ) {
+                          event.currentTarget.src = fallbackSrc;
+                        }
+                      }}
+                    />
                   )}
                 </div>
                 <div className={styles.previewInfo}>

@@ -27,7 +27,7 @@ export default function Login() {
       }
 
       navigate('/profile');
-    } catch (fetchError) {
+    } catch {
       setError('Error de conexión, intenta nuevamente');
     }
   };

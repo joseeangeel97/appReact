@@ -3,6 +3,7 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import express from 'express';
 import 'dotenv/config';
+import { createServer as createHttpServer } from 'node:http';
 import { MongoClient } from 'mongodb';
 import { createServer as createViteServer } from 'vite';
 import { fileURLToPath } from 'url';
@@ -11,6 +12,9 @@ import { v2 as cloudinary } from 'cloudinary';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const isProduction = globalThis.process?.env?.NODE_ENV === 'production';
+
+//Mongo
+
 const mongoUri = globalThis.process?.env?.DB;
 const dbName = globalThis.process?.env?.DB_NAME;
 const authCollectionName =
@@ -23,7 +27,6 @@ const cloudinaryUrl = globalThis.process?.env?.CLOUDINARY_URL;
 let mongoDbPromise;
 let authCollectionPromise;
 
-//Mongo
 async function getMongoDb() {
   if (!mongoUri) {
     throw new Error('Missing DB environment variable');
@@ -107,9 +110,22 @@ if (cloudinaryUrl) {
   cloudinary.config({ secure: true });
 }
 
+function getCloudinaryImageUrl(imageUrl, { width, height, crop = 'limit' }) {
+  if (!cloudinaryUrl || !imageUrl.includes('/image/upload/')) {
+    return imageUrl;
+  }
+
+  const cloudinaryCrop = crop === 'cover' ? 'fill' : crop;
+  const gravity = cloudinaryCrop === 'fill' ? ',g_auto' : '';
+  const background = cloudinaryCrop === 'pad' ? ',b_gen_fill' : '';
+  const transformation = `f_auto,q_auto,c_${cloudinaryCrop}${gravity}${background},w_${width},h_${height}`;
+  return imageUrl.replace('/image/upload/', `/image/upload/${transformation}/`);
+}
+
 //Express
 async function createServer() {
   const app = express();
+  const httpServer = createHttpServer(app);
 
   app.use(express.json());
 
@@ -171,7 +187,11 @@ async function createServer() {
           label: image.titulo || image.slug || 'Imagen de perfil',
           category: image.categoria || '',
           description: image.descripcion || '',
-          src: image.imagenUrl,
+          src: getCloudinaryImageUrl(image.imagenUrl, {
+            width: 900,
+            height: 900,
+          }),
+          originalSrc: image.imagenUrl,
         })),
       });
     } catch (error) {
@@ -187,7 +207,10 @@ async function createServer() {
   if (!isProduction) {
     const vite = await createViteServer({
       root: globalThis.process?.cwd(),
-      server: { middlewareMode: 'ssr' },
+      server: {
+        middlewareMode: 'ssr',
+        hmr: { server: httpServer },
+      },
       appType: 'custom',
     });
 
@@ -237,11 +260,47 @@ async function createServer() {
   }
 
   //Puerto
-  const port =
-    typeof process !== 'undefined' ? globalThis.process.env.PORT || 3000 : 3000;
-  app.listen(port, () => {
-    console.log(`Server listening on http://localhost:${port}`);
+  const envPort = globalThis.process?.env?.PORT;
+  const port = Number(envPort || 3000);
+  const canFallbackPort = !isProduction && !envPort;
+  const maxFallbackPort = port + 10;
+  let attemptedPort = port;
+
+  function listen(currentPort) {
+    attemptedPort = currentPort;
+
+    httpServer.listen(currentPort, () => {
+      console.log(`Server listening on http://localhost:${currentPort}`);
+    });
+  }
+
+  httpServer.on('error', (error) => {
+    const currentPort = attemptedPort;
+
+    if (
+      error.code === 'EADDRINUSE' &&
+      canFallbackPort &&
+      currentPort < maxFallbackPort
+    ) {
+      const nextPort = currentPort + 1;
+
+      console.warn(
+        `Port ${currentPort} is in use, trying http://localhost:${nextPort}`,
+      );
+      listen(nextPort);
+      return;
+    }
+
+    if (error.code === 'EADDRINUSE') {
+      console.error(
+        `Port ${currentPort} is already in use. Stop that process or start this app with PORT=${currentPort + 1} npm run dev.`,
+      );
+    }
+
+    throw error;
   });
+
+  listen(port);
 }
 
 createServer();
