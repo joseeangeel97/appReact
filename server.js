@@ -16,11 +16,18 @@ const isProduction = globalThis.process?.env?.NODE_ENV === 'production';
 //Mongo
 
 const mongoUri = globalThis.process?.env?.DB;
-const dbName = globalThis.process?.env?.DB_NAME;
+const dbName = globalThis.process?.env?.DB_NAME?.trim();
 const authCollectionName =
   globalThis.process?.env?.AUTH_COLLECTION || 'access_keys';
+const usersCollectionName = globalThis.process?.env?.USERS_COLLECTION || 'user';
+const keySentencesCollectionName =
+  globalThis.process?.env?.KEY_SENTENCES_COLLECTION || 'key_sentences';
 const profileImagesCollectionName =
   globalThis.process?.env?.PROFILE_IMAGES_COLLECTION || 'images_profile';
+const defaultAccessName =
+  globalThis.process?.env?.DEFAULT_ACCESS_NAME?.trim() || 'SATOR';
+const defaultAccessPassword =
+  globalThis.process?.env?.DEFAULT_ACCESS_PASSWORD?.trim() || 'TENET';
 const bcryptSaltRounds = 10;
 const cloudinaryUrl = globalThis.process?.env?.CLOUDINARY_URL;
 
@@ -52,10 +59,10 @@ async function getAuthCollection() {
 
       await collection.createIndex({ name: 1 }, { unique: true });
       await collection.updateOne(
-        { name: 'santo' },
+        { name: defaultAccessName },
         {
           $setOnInsert: {
-            name: 'santo',
+            name: defaultAccessName,
             createdAt: new Date(),
           },
         },
@@ -63,19 +70,19 @@ async function getAuthCollection() {
       );
 
       const defaultUser = await collection.findOne(
-        { name: 'santo' },
+        { name: defaultAccessName },
         { projection: { password: 1, passwordHash: 1 } },
       );
 
       if (!defaultUser?.passwordHash) {
-        const passwordToHash = defaultUser?.password || 'seña';
+        const passwordToHash = defaultUser?.password || defaultAccessPassword;
         const passwordHash = await bcrypt.hash(
           passwordToHash,
           bcryptSaltRounds,
         );
 
         await collection.updateOne(
-          { name: 'santo' },
+          { name: defaultAccessName },
           {
             $set: { passwordHash },
             $unset: { password: '' },
@@ -83,7 +90,7 @@ async function getAuthCollection() {
         );
       } else if (defaultUser.password) {
         await collection.updateOne(
-          { name: 'santo' },
+          { name: defaultAccessName },
           { $unset: { password: '' } },
         );
       }
@@ -103,6 +110,18 @@ async function getProfileImagesCollection() {
   const db = await getMongoDb();
 
   return db.collection(profileImagesCollectionName);
+}
+
+async function getUsersCollection() {
+  const db = await getMongoDb();
+
+  return db.collection(usersCollectionName);
+}
+
+async function getKeySentencesCollection() {
+  const db = await getMongoDb();
+
+  return db.collection(keySentencesCollectionName);
 }
 
 //Cloudinary
@@ -200,6 +219,114 @@ async function createServer() {
       return res.status(503).json({
         ok: false,
         message: 'No se pudieron cargar las imágenes de perfil',
+      });
+    }
+  });
+
+  app.get('/api/key-sentences', async (req, res) => {
+    try {
+      const keySentencesCollection = await getKeySentencesCollection();
+      const documents = await keySentencesCollection
+        .find(
+          {},
+          {
+            projection: {
+              _id: 1,
+
+              texto: 1,
+            },
+          },
+        )
+        .toArray();
+
+      const sentences = documents
+        .map((document) => {
+          const text = document.texto || '';
+
+          return {
+            id: String(document._id),
+            text: String(text).trim(),
+          };
+        })
+        .filter((sentence) => sentence.text)
+        .sort((firstSentence, secondSentence) =>
+          firstSentence.text.localeCompare(secondSentence.text, 'es'),
+        );
+
+      return res.status(200).json({
+        ok: true,
+        sentences,
+      });
+    } catch (error) {
+      console.error('MongoDB key sentences error:', error);
+
+      return res.status(503).json({
+        ok: false,
+        message: 'No se pudieron cargar las frases',
+      });
+    }
+  });
+
+  app.post('/api/users', async (req, res) => {
+    const alias = String(req.body?.alias || '').trim();
+    const phrase = String(req.body?.phrase || '').trim();
+    const hiddenThought = String(req.body?.hiddenThought || '').trim();
+    const number = Number(req.body?.number);
+    const image = req.body?.image;
+    const selectedImage =
+      image && typeof image === 'object'
+        ? {
+            id: String(image.id || '').trim(),
+            label: String(image.label || '').trim(),
+            category: String(image.category || '').trim(),
+            description: String(image.description || '').trim(),
+            src: String(image.src || '').trim(),
+            originalSrc: String(image.originalSrc || '').trim(),
+          }
+        : null;
+
+    if (
+      !alias ||
+      !phrase ||
+      !hiddenThought ||
+      !Number.isFinite(number) ||
+      number < 1 ||
+      !selectedImage?.id ||
+      !selectedImage?.src
+    ) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Todos los campos del perfil son obligatorios',
+      });
+    }
+
+    try {
+      const usersCollection = await getUsersCollection();
+      const createdAt = new Date();
+      const hiddenThoughtHash = await bcrypt.hash(
+        hiddenThought,
+        bcryptSaltRounds,
+      );
+      const result = await usersCollection.insertOne({
+        alias,
+        phrase,
+        hiddenThoughtHash,
+        number,
+        image: selectedImage,
+        createdAt,
+        updatedAt: createdAt,
+      });
+
+      return res.status(201).json({
+        ok: true,
+        userId: String(result.insertedId),
+      });
+    } catch (error) {
+      console.error('MongoDB user profile error:', error);
+
+      return res.status(503).json({
+        ok: false,
+        message: 'No se pudo guardar el perfil',
       });
     }
   });

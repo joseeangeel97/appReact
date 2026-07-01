@@ -24,7 +24,10 @@ export default function Header({ className }) {
     <header
       className={`${styles.headerBase} ${hidden ? styles.hiddenHeader : styles.visibleHeader} ${className ?? ''}`}
     >
-      <h2>EventHub Paternoster</h2>
+      <Link to='/' className={styles.brand} aria-label='EventHub Paternoster'>
+        <img src='/logo1.png' alt='' className={styles.logo} />
+        <h2>EventHub Paternoster</h2>
+      </Link>
       <nav>
         <Link to='/'>Inicio</Link>
         <Link to='/page-event'>Eventos</Link>

@@ -1,16 +1,39 @@
-import { useEffect, useState } from 'react';
-import Header from '../components/Header';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import Footer from '../components/Footer';
+import FieldLabel from '../components/FieldLabel';
 import ImageCarousel from '../components/ImageCarousel';
+import Tooltip from '../components/Tooltip';
 import styles from './profile.module.css';
 
+const fieldLabelClasses = {
+  className: styles.fieldLabel,
+  textClassName: styles.fieldLabelText,
+};
+
+const tooltipClasses = {
+  wrapperClassName: styles.tooltipWrapper,
+  triggerClassName: styles.tooltipTrigger,
+  bubbleClassName: styles.tooltipBubble,
+};
+
 export default function Profile() {
+  const navigate = useNavigate();
+  const redirectTimeoutRef = useRef(null);
   const [alias, setAlias] = useState('');
   const [phrase, setPhrase] = useState('');
+  const [phrasesOpen, setPhrasesOpen] = useState(false);
+  const [hiddenThought, setHiddenThought] = useState('');
+  const [phraseOptions, setPhraseOptions] = useState([]);
+  const [phrasesStatus, setPhrasesStatus] = useState('loading');
   const [number, setNumber] = useState('');
   const [imageOptions, setImageOptions] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagesStatus, setImagesStatus] = useState('loading');
+  const [saveStatus, setSaveStatus] = useState('idle');
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -40,25 +63,106 @@ export default function Profile() {
       }
     }
 
+    async function loadKeySentences() {
+      try {
+        const response = await fetch('/api/key-sentences');
+
+        if (!response.ok) {
+          throw new Error('Key sentences request failed');
+        }
+
+        const data = await response.json();
+        const sentences = Array.isArray(data.sentences) ? data.sentences : [];
+
+        if (!isMounted) {
+          return;
+        }
+
+        setPhraseOptions(sentences);
+        setPhrasesStatus(sentences.length > 0 ? 'ready' : 'empty');
+      } catch {
+        if (isMounted) {
+          setPhrasesStatus('error');
+        }
+      }
+    }
+
     loadProfileImages();
+    loadKeySentences();
 
     return () => {
       isMounted = false;
     };
   }, []);
 
-  const handleSubmit = (event) => {
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    window.alert(
-      `Perfil guardado:\nAlias: ${alias}\nFrase: ${phrase}\nNúmero: ${number}`,
-    );
+    setError('');
+    setSuccessMessage('');
+
+    if (
+      !alias.trim() ||
+      !phrase.trim() ||
+      !hiddenThought.trim() ||
+      !number ||
+      !selectedImage
+    ) {
+      setError('Todos los campos del perfil son obligatorios');
+      return;
+    }
+
+    if (Number(number) < 1) {
+      setError('El número personal debe ser mayor que cero');
+      return;
+    }
+
+    setSaveStatus('saving');
+
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alias,
+          phrase,
+          hiddenThought,
+          number,
+          image: selectedImage,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setError(data.message || 'No se pudo guardar el perfil');
+        setSaveStatus('idle');
+        return;
+      }
+
+      setSaveStatus('success');
+      setSuccessMessage(
+        'Perfil creado correctamente. Redirigiendo a eventos...',
+      );
+      redirectTimeoutRef.current = setTimeout(() => {
+        navigate('/page-event');
+      }, 1200);
+    } catch {
+      setError('Error de conexión, intenta nuevamente');
+      setSaveStatus('idle');
+    }
   };
 
   const previewImageSrc = selectedImage?.src;
 
   return (
     <>
-      <Header />
       <main className={styles.profileMain}>
         <section className={styles.profileSection}>
           <header className={styles.profileHeader}>
@@ -72,7 +176,9 @@ export default function Profile() {
 
           <form className={styles.profileForm} onSubmit={handleSubmit}>
             <div className={styles.formRow}>
-              <label htmlFor='alias'>Alias</label>
+              <FieldLabel htmlFor='alias' {...fieldLabelClasses}>
+                Alias
+              </FieldLabel>
               <input
                 id='alias'
                 type='text'
@@ -84,31 +190,121 @@ export default function Profile() {
             </div>
 
             <div className={styles.formRow}>
-              <label htmlFor='phrase'>Frase identificativa</label>
-              <textarea
-                id='phrase'
-                value={phrase}
-                onChange={(e) => setPhrase(e.target.value)}
-                placeholder='Escribe una frase breve y sentencial'
+              <FieldLabel
+                htmlFor='phrase'
+                tooltip={
+                  <Tooltip id='phrase-tooltip' {...tooltipClasses}>
+                    Recuerda esta frase: más adelante se te pedirá junto a tu
+                    pensamiento más oculto para poder ingresar.
+                  </Tooltip>
+                }
+                {...fieldLabelClasses}
+              >
+                Frase identificativa
+              </FieldLabel>
+              <div className={styles.phraseAccordion}>
+                <button
+                  id='phrase'
+                  type='button'
+                  className={`${styles.phraseTrigger} ${phrasesOpen ? styles.phraseTriggerOpen : ''}`}
+                  onClick={() => setPhrasesOpen((isOpen) => !isOpen)}
+                  disabled={phrasesStatus !== 'ready'}
+                  aria-expanded={phrasesOpen}
+                  aria-controls='phrase-options'
+                >
+                  <span>
+                    {phrase ||
+                      (phrasesStatus === 'loading'
+                        ? 'Cargando frases...'
+                        : 'Selecciona una frase')}
+                  </span>
+                  <span className={styles.phraseChevron} aria-hidden='true' />
+                </button>
+
+                {phrasesOpen && phrasesStatus === 'ready' && (
+                  <div
+                    id='phrase-options'
+                    className={styles.phrasePanel}
+                    role='listbox'
+                    aria-label='Frases identificativas'
+                  >
+                    {phraseOptions.map((phraseOption) => (
+                      <button
+                        key={phraseOption.id}
+                        type='button'
+                        className={`${styles.phraseOption} ${
+                          phrase === phraseOption.text
+                            ? styles.phraseOptionSelected
+                            : ''
+                        }`}
+                        onClick={() => {
+                          setPhrase(phraseOption.text);
+                          setPhrasesOpen(false);
+                        }}
+                        role='option'
+                        aria-selected={phrase === phraseOption.text}
+                      >
+                        {phraseOption.text}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {phrasesStatus === 'loading' && (
+                <p className={styles.imageStatus}>Cargando frases...</p>
+              )}
+              {phrasesStatus === 'empty' && (
+                <p className={styles.imageStatus}>No hay frases disponibles</p>
+              )}
+              {phrasesStatus === 'error' && (
+                <p className={styles.imageStatus}>
+                  No se pudieron cargar las frases
+                </p>
+              )}
+            </div>
+
+            <div className={styles.formRow}>
+              <FieldLabel
+                htmlFor='hiddenThought'
+                tooltip={
+                  <Tooltip id='hidden-thought-tooltip' {...tooltipClasses}>
+                    Esta frase contraseña se guardará protegida y deberás
+                    recordarla para ingresar más adelante.
+                  </Tooltip>
+                }
+                {...fieldLabelClasses}
+              >
+                Pensamiento más oculto
+              </FieldLabel>
+              <input
+                id='hiddenThought'
+                type='password'
+                value={hiddenThought}
+                onChange={(e) => setHiddenThought(e.target.value)}
+                placeholder='Introduce tu frase contraseña'
                 required
               />
             </div>
 
             <div className={styles.formRow}>
-              <label htmlFor='number'>Número personal</label>
+              <FieldLabel htmlFor='number' {...fieldLabelClasses}>
+                Número personal
+              </FieldLabel>
               <input
                 id='number'
                 type='number'
                 value={number}
                 onChange={(e) => setNumber(e.target.value)}
-                placeholder='Selecciona tu número'
+                placeholder='Introduce tu número'
                 min='1'
                 required
               />
             </div>
 
             <div className={styles.formRow}>
-              <label>Selecciona tu imagen</label>
+              <FieldLabel {...fieldLabelClasses}>
+                Selecciona tu imagen
+              </FieldLabel>
               {imagesStatus === 'loading' && (
                 <p className={styles.imageStatus}>Cargando imágenes...</p>
               )}
@@ -170,12 +366,33 @@ export default function Profile() {
                   <p>{phrase || 'Frase identificativa pendiente'}</p>
                 </div>
               </div>
-              <p>Número de perfil: {number || 'No asignado'}</p>
-              <p>Imagen: {selectedImage?.label || 'No seleccionada'}</p>
+              <div className={styles.previewDetails}>
+                <p>
+                  <span>Número de perfil</span>
+                  <strong>{number || 'No asignado'}</strong>
+                </p>
+                <p>
+                  <span>Imagen</span>
+                  <strong>{selectedImage?.label || 'No seleccionada'}</strong>
+                </p>
+              </div>
             </div>
 
-            <button type='submit' className={styles.submitButton}>
-              Guardar perfil
+            {error && <p className={styles.errorMessage}>{error}</p>}
+            {successMessage && (
+              <p className={styles.successMessage}>{successMessage}</p>
+            )}
+
+            <button
+              type='submit'
+              className={styles.submitButton}
+              disabled={saveStatus === 'saving' || saveStatus === 'success'}
+            >
+              {saveStatus === 'saving'
+                ? 'Guardando...'
+                : saveStatus === 'success'
+                  ? 'Perfil creado'
+                  : 'Crear perfil'}
             </button>
           </form>
         </section>

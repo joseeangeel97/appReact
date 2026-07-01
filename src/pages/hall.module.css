@@ -55,6 +55,7 @@
 
 .eventsSection,
 .originSection,
+.clubSection,
 .accessSection {
   margin: 2rem auto;
   padding: 1.5rem;
@@ -113,6 +114,22 @@
   }
 }
 
+.clubSection {
+  background: rgba(255, 221, 87, 0.12);
+  border: 1px solid rgba(255, 221, 87, 0.2);
+
+  h2 {
+    margin-bottom: 1rem;
+    color: #ffdd57;
+    font-size: 1.75rem;
+  }
+
+  p {
+    line-height: 1.75;
+    color: #f1f1f1;
+  }
+}
+
 .homeButton {
   margin-top: 1.25rem;
   padding: 0.9rem 1.8rem;
@@ -129,5 +146,15 @@
   &:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
+  }
+}
+
+.clubButton {
+  composes: homeButton;
+  background: rgba(255, 221, 87, 0.22);
+  color: #fffbdf;
+
+  &:hover {
+    background: rgba(255, 221, 87, 0.34);
   }
 }

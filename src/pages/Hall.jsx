@@ -11,6 +11,9 @@ export default function Hall() {
     navigate('/login');
   };
 
+  const handleGoEvent = () => {
+    navigate('/page-event');
+  };
   return (
     <>
       <Header className={styles.hallHeader} />
@@ -29,9 +32,25 @@ export default function Hall() {
           </p>
         </section>
 
+        {/* Sección: Miembros del club */}
+        <section className={styles.clubSection}>
+          <h2>¿ Eres un iniciado ?</h2>
+          <p>
+            Si ya formas parte de la sociedad, cruza el umbral a través de este
+            punto
+          </p>
+          <button
+            type='button'
+            className={styles.clubButton}
+            onClick={handleGoEvent}
+          >
+            Acceder al club
+          </button>
+        </section>
+
         {/* Sección: Acceso Exclusivo */}
         <section className={styles.accessSection}>
-          <h2>¿Quieres acceder?</h2>
+          <h2>¿ Quieres formar parte ?</h2>
           <p>
             Si deseas formar parte de nuestra comunidad, las respuestas ya han
             sido entregadas. Solo necesitas <strong>ver más allá</strong> del
