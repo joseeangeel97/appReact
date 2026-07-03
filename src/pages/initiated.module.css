@@ -118,26 +118,29 @@
   }
 
   .passwordField {
-    /* Permite colocar el botón Ver/Ocultar dentro del input. */
-    position: relative;
+    /* Coloca el input y el botón Ver/Ocultar en la misma línea. */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 4.5rem;
+    align-items: center;
+    gap: 0.45rem;
 
     input {
-      padding-right: 5.8rem;
+      padding-inline: 1rem;
     }
 
     button {
-      position: absolute;
-      top: 50%;
-      right: 0.55rem;
-      transform: translateY(-50%);
+      width: 4.5rem;
+      min-height: 3rem;
       border: 0;
       border-radius: 2rem;
       background: rgba(255, 255, 255, 0.86);
       color: #111;
-      padding: 0.35rem 0.75rem;
+      padding: 0.35rem 0.6rem;
       cursor: pointer;
       font: inherit;
       font-size: 0.9rem;
+      line-height: 1;
+      text-align: center;
 
       &:hover {
         background-color: lab(86.78% -24.28 85.04);

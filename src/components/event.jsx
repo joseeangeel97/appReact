@@ -1,4 +1,7 @@
+import Button from './Button';
 import styles from './event.module.css';
+
+const getClassName = (...classNames) => classNames.filter(Boolean).join(' ');
 
 export default function Event({
   title,
@@ -8,9 +11,10 @@ export default function Event({
   description,
   image,
   onReserve,
+  className,
 }) {
   return (
-    <article className={styles.eventCard}>
+    <article className={getClassName(styles.eventCard, className)}>
       <div className={styles.imageFrame}>
         <img src={image} alt={title} />
       </div>
@@ -24,13 +28,13 @@ export default function Event({
           <span>{location}</span>
         </div>
         <p className={styles.eventDescription}>{description}</p>
-        <button
+        <Button
           type='button'
           className={styles.reserveButton}
           onClick={onReserve}
         >
           Reservar
-        </button>
+        </Button>
       </div>
     </article>
   );

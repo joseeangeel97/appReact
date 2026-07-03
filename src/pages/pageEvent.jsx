@@ -1,6 +1,13 @@
+import { useSyncExternalStore } from 'react';
+
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Event from '../components/event';
+import EventBlock from '../components/EventBlock';
+import {
+  getActiveProfile,
+  subscribeActiveProfile,
+} from '../utils/sessionProfile';
+import pageBackground from '../assets/fondos/bg3.png';
 import bg5 from '../assets/fondos/bg5.png';
 import bg6 from '../assets/fondos/bg6.png';
 import bg4 from '../assets/fondos/bg4.png';
@@ -39,7 +46,32 @@ const promotedEvents = [
   },
 ];
 
+function getParallaxProfileImage(profileImage) {
+  const imageSrc = profileImage?.originalSrc || profileImage?.src;
+
+  if (!imageSrc) {
+    return pageBackground;
+  }
+
+  if (!imageSrc.includes('/image/upload/')) {
+    return imageSrc;
+  }
+
+  return imageSrc.replace(
+    '/image/upload/',
+    '/image/upload/f_auto,q_auto:best,c_fill,g_auto,w_2200,h_1100/',
+  );
+}
+
 export default function PageEvent() {
+  const activeProfile = useSyncExternalStore(
+    subscribeActiveProfile,
+    getActiveProfile,
+    () => null,
+  );
+  const profileImage = activeProfile?.image;
+  const parallaxProfileImage = getParallaxProfileImage(profileImage);
+
   const handleReserve = (title) => {
     window.alert(`Reserva enviada para: ${title}`);
   };
@@ -47,7 +79,13 @@ export default function PageEvent() {
   return (
     <>
       <Header />
-      <main className={styles.pageEventMain}>
+      <main
+        className={styles.pageEventMain}
+        style={{
+          '--page-event-background': `url("${pageBackground}")`,
+          '--profile-parallax-image': `url("${parallaxProfileImage}")`,
+        }}
+      >
         <section className={styles.pageEventHeader}>
           <div>
             <h1>Eventos Privados</h1>
@@ -57,19 +95,31 @@ export default function PageEvent() {
               selecta.
             </p>
           </div>
+          {activeProfile?.alias && (
+            <div className={styles.aliasBadge}>
+              <span>Perfil activo</span>
+              <strong>{activeProfile.alias}</strong>
+              {profileImage?.label && (
+                <p className={styles.profileImageName}>{profileImage.label}</p>
+              )}
+              {profileImage?.description && (
+                <p className={styles.profileImageDescription}>
+                  {profileImage.description}
+                </p>
+              )}
+            </div>
+          )}
         </section>
 
-        <section className={styles.eventsGrid}>
-          {promotedEvents.map((event) => (
-            <Event
+        <section className={styles.eventsColumn}>
+          {promotedEvents.map((event, index) => (
+            <EventBlock
               key={event.id}
-              title={event.title}
-              type={event.type}
-              date={event.date}
-              location={event.location}
-              description={event.description}
-              image={event.image}
-              onReserve={() => handleReserve(event.title)}
+              event={event}
+              mirrored={index % 2 === 1}
+              parallaxImage={parallaxProfileImage}
+              showParallax={index < promotedEvents.length - 1}
+              onReserve={handleReserve}
             />
           ))}
         </section>

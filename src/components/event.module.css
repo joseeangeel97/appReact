@@ -1,87 +1,125 @@
+/* Card de evento: imagen y datos en dos columnas, con layout alternable. */
 .eventCard {
   display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 1.5rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-  backdrop-filter: blur(10px);
-  align-items: center;
-}
-
-.imageFrame {
-  width: 100%;
-  min-height: 160px;
-  border-radius: 1.25rem;
+  grid-template-columns: minmax(24rem, 1fr) minmax(24rem, 0.9fr);
+  align-items: stretch;
+  min-height: clamp(25rem, 38vw, 34rem);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 1.6rem;
+  background:
+    linear-gradient(135deg, rgba(255, 215, 0, 0.08), transparent 42%),
+    rgba(3, 7, 14, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px rgba(127, 255, 212, 0.08),
+    0 24px 60px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(127, 255, 212, 0.12);
+  backdrop-filter: blur(12px);
 
-  img {
+  /* Imagen principal del evento. */
+  .imageFrame {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    min-height: 100%;
+    overflow: hidden;
+    border-right: 1px solid rgba(255, 215, 0, 0.16);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      inset -18px 0 34px rgba(127, 255, 212, 0.08);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
-}
 
-.eventContent {
-  display: grid;
-  gap: 0.75rem;
-}
+  /* Bloque textual con título, metadatos, descripción y reserva. */
+  .eventContent {
+    display: grid;
+    align-content: center;
+    gap: 1.15rem;
+    padding: clamp(1.5rem, 4vw, 3.25rem);
+  }
 
-.eventHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
+  .eventHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
 
-.eventType {
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12rem;
-  background: rgba(255, 255, 255, 0.14);
-  color: #f7f7f7;
-}
+  .eventType {
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12rem;
+    background: rgba(255, 255, 255, 0.14);
+    color: #f7f7f7;
+  }
 
-.eventTitle {
-  margin: 0;
-  font-size: 1.35rem;
-  color: #fff;
-}
+  .eventTitle {
+    margin: 0;
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    color: #fff;
+    line-height: 1.08;
+  }
 
-.eventMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  color: #d6d6d6;
-  font-size: 0.95rem;
-}
+  .eventMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    color: #d6d6d6;
+    font-size: 0.95rem;
+  }
 
-.eventDescription {
-  color: #e8e8e8;
-  line-height: 1.6;
-}
+  .eventDescription {
+    color: #e8e8e8;
+    line-height: 1.6;
+    margin: 0;
+  }
 
-.reserveButton {
-  justify-self: start;
-  margin-top: 0.5rem;
-  padding: 0.85rem 1.2rem;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 180, 0, 0.85));
-  color: #111;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  .reserveButton {
+    justify-self: start;
+    margin-top: 0.5rem;
+    padding: 0.85rem 1.2rem;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 215, 0, 0.95),
+      rgba(255, 180, 0, 0.85)
+    );
+    color: #111;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      transform 0.2s ease,
+      filter 0.2s ease;
 
-  &:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.05);
+    &:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+  }
+
+  /* En móvil la card vuelve a una sola columna para evitar estrecheces. */
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+    min-height: auto;
+
+    .imageFrame {
+      min-height: 14rem;
+      border-right: 0;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.16);
+    }
+
+    .eventHeader {
+      align-items: flex-start;
+      flex-direction: column;
+    }
   }
 }

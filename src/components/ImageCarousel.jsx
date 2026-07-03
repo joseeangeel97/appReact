@@ -1,4 +1,6 @@
 import { useState } from 'react';
+
+import Button from './Button';
 import styles from './ImageCarousel.module.css';
 
 const getClassName = (...classNames) => classNames.filter(Boolean).join(' ');
@@ -45,16 +47,16 @@ export default function ImageCarousel({
   return (
     <section className={getClassName(styles.carousel, className)} aria-label={label}>
       <div className={getClassName(styles.viewport, viewportClassName)}>
-        <button
+        <Button
           type='button'
           className={`${styles.controlButton} ${styles.previousButton}`}
           onClick={goToPrevious}
           aria-label='Imagen anterior'
         >
           &lt;
-        </button>
+        </Button>
 
-        <button
+        <Button
           type='button'
           className={getClassName(styles.imageButton, imageButtonClassName)}
           onClick={goToNext}
@@ -74,21 +76,21 @@ export default function ImageCarousel({
               />
             ))}
           </div>
-        </button>
+        </Button>
 
-        <button
+        <Button
           type='button'
           className={`${styles.controlButton} ${styles.nextButton}`}
           onClick={goToNext}
           aria-label='Imagen siguiente'
         >
           &gt;
-        </button>
+        </Button>
       </div>
 
       <div className={styles.indicators} aria-label='Seleccionar imagen'>
         {images.map((image, index) => (
-          <button
+          <Button
             type='button'
             key={image.id || `${image.src}-${index}`}
             className={`${styles.indicator} ${

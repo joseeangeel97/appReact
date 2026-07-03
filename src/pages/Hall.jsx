@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Button from '../components/Button';
 
 import { useNavigate } from 'react-router-dom';
 import styles from './hall.module.css';
@@ -39,13 +40,13 @@ export default function Hall() {
             Si ya formas parte de la sociedad, cruza el umbral a través de este
             punto
           </p>
-          <button
+          <Button
             type='button'
             className={styles.clubButton}
             onClick={handleGoInitiated}
           >
             Acceder al club
-          </button>
+          </Button>
         </section>
 
         {/* Sección: Acceso Exclusivo */}
@@ -58,13 +59,13 @@ export default function Hall() {
             utilizar el santo y seña que encontrarás en estas páginas.{' '}
             <em>Las pistas están a la vista para quien sepa mirar.</em>
           </p>
-          <button
+          <Button
             type='button'
             className={styles.homeButton}
             onClick={handleGoHome}
           >
             Acceder
-          </button>
+          </Button>
         </section>
       </main>
       <Footer />

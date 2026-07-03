@@ -134,6 +134,7 @@ export function registerProfileRoutes(app) {
               phrase: 1,
               hiddenThought: 1,
               hiddenThoughtHash: 1,
+              image: 1,
               number: 1,
             },
           },
@@ -164,7 +165,14 @@ export function registerProfileRoutes(app) {
           profilePhrase === phrase &&
           (hiddenThoughtMatchesHash || hiddenThoughtMatchesPlainText)
         ) {
-          return res.status(200).json({ ok: true });
+          return res.status(200).json({
+            ok: true,
+            profile: {
+              alias: profile.alias || alias,
+              number: profile.number ?? number,
+              image: profile.image || null,
+            },
+          });
         }
       }
 
@@ -237,6 +245,11 @@ export function registerProfileRoutes(app) {
       return res.status(201).json({
         ok: true,
         userId: String(result.insertedId),
+        profile: {
+          alias,
+          number,
+          image: selectedImage,
+        },
       });
     } catch (error) {
       console.error('MongoDB user profile error:', error);

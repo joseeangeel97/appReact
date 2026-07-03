@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import Button from '../components/Button';
 import Footer from '../components/Footer';
 import FieldLabel from '../components/FieldLabel';
 import ImageCarousel from '../components/ImageCarousel';
 import Tooltip from '../components/Tooltip';
+import { saveActiveProfile } from '../utils/sessionProfile';
 import styles from './profile.module.css';
 
 const fieldLabelClasses = {
@@ -154,6 +156,9 @@ export default function Profile() {
         return;
       }
 
+      const data = await response.json();
+
+      saveActiveProfile(data.profile);
       setSaveStatus('success');
       setSuccessMessage(
         'Perfil creado correctamente. Redirigiendo a eventos...',
@@ -213,7 +218,7 @@ export default function Profile() {
                 Frase identificativa
               </FieldLabel>
               <div className={styles.phraseAccordion}>
-                <button
+                <Button
                   id='phrase'
                   type='button'
                   className={`${styles.phraseTrigger} ${phrasesOpen ? styles.phraseTriggerOpen : ''}`}
@@ -229,7 +234,7 @@ export default function Profile() {
                         : 'Selecciona una frase')}
                   </span>
                   <span className={styles.phraseChevron} aria-hidden='true' />
-                </button>
+                </Button>
 
                 {phrasesOpen && phrasesStatus === 'ready' && (
                   <div
@@ -239,7 +244,7 @@ export default function Profile() {
                     aria-label='Frases identificativas'
                   >
                     {phraseOptions.map((phraseOption) => (
-                      <button
+                      <Button
                         key={phraseOption.id}
                         type='button'
                         className={`${styles.phraseOption} ${
@@ -255,7 +260,7 @@ export default function Profile() {
                         aria-selected={phrase === phraseOption.text}
                       >
                         {phraseOption.text}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -296,7 +301,7 @@ export default function Profile() {
                   required
                 />
                 {/* Permite comprobar la frase escrita sin cambiar el valor guardado. */}
-                <button
+                <Button
                   type='button'
                   onClick={() =>
                     setShowHiddenThought((isVisible) => !isVisible)
@@ -308,7 +313,7 @@ export default function Profile() {
                   }
                 >
                   {showHiddenThought ? 'Ocultar' : 'Ver'}
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -421,7 +426,7 @@ export default function Profile() {
               <p className={styles.successMessage}>{successMessage}</p>
             )}
 
-            <button
+            <Button
               type='submit'
               className={styles.submitButton}
               disabled={saveStatus === 'saving' || saveStatus === 'success'}
@@ -431,7 +436,7 @@ export default function Profile() {
                 : saveStatus === 'success'
                   ? 'Perfil creado'
                   : 'Crear perfil'}
-            </button>
+            </Button>
           </form>
         </section>
       </main>

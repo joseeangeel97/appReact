@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import Button from '../components/Button';
 import styles from './login.module.css';
 
 export default function Login() {
@@ -70,7 +72,7 @@ export default function Login() {
 
           {error && <p className={styles.errorMessage}>{error}</p>}
 
-          <button type='submit'>Entrar</button>
+          <Button type='submit'>Entrar</Button>
         </form>
       </section>
     </main>

@@ -1,3 +1,5 @@
+import Button from './Button';
+
 export default function Tooltip({
   id,
   children,
@@ -7,9 +9,9 @@ export default function Tooltip({
 }) {
   return (
     <span className={wrapperClassName}>
-      <button type='button' className={triggerClassName} aria-describedby={id}>
+      <Button type='button' className={triggerClassName} aria-describedby={id}>
         ?
-      </button>
+      </Button>
       <span id={id} className={bubbleClassName}>
         {children}
       </span>

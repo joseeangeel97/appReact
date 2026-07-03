@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import Button from '../components/Button';
 import FieldLabel from '../components/FieldLabel';
+import { saveActiveProfile } from '../utils/sessionProfile';
 import styles from './initiated.module.css';
 
 const fieldLabelClasses = {
@@ -57,6 +59,9 @@ export default function Initiated() {
         return;
       }
 
+      const data = await response.json();
+
+      saveActiveProfile(data.profile);
       setStatus('success');
       // Si el acceso es correcto, entra directamente a la página de eventos.
       navigate('/page-event');
@@ -124,7 +129,7 @@ export default function Initiated() {
                   required
                 />
                 {/* Permite revisar la frase sin enviar el formulario. */}
-                <button
+                <Button
                   type='button'
                   onClick={() => setShowHiddenThought((isVisible) => !isVisible)}
                   aria-label={
@@ -134,7 +139,7 @@ export default function Initiated() {
                   }
                 >
                   {showHiddenThought ? 'Ocultar' : 'Ver'}
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -156,9 +161,9 @@ export default function Initiated() {
 
             {error && <p className={styles.errorMessage}>{error}</p>}
 
-            <button type='submit' disabled={status === 'checking'}>
+            <Button type='submit' disabled={status === 'checking'}>
               {status === 'checking' ? 'Comprobando...' : 'Entrar'}
-            </button>
+            </Button>
           </form>
         </section>
       </main>
