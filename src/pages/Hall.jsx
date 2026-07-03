@@ -11,8 +11,8 @@ export default function Hall() {
     navigate('/login');
   };
 
-  const handleGoEvent = () => {
-    navigate('/page-event');
+  const handleGoInitiated = () => {
+    navigate('/login/initiated');
   };
   return (
     <>
@@ -42,7 +42,7 @@ export default function Hall() {
           <button
             type='button'
             className={styles.clubButton}
-            onClick={handleGoEvent}
+            onClick={handleGoInitiated}
           >
             Acceder al club
           </button>

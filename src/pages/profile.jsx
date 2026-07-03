@@ -21,10 +21,12 @@ const tooltipClasses = {
 export default function Profile() {
   const navigate = useNavigate();
   const redirectTimeoutRef = useRef(null);
+  // Datos que el usuario define y que después se usarán para el acceso de iniciado.
   const [alias, setAlias] = useState('');
   const [phrase, setPhrase] = useState('');
   const [phrasesOpen, setPhrasesOpen] = useState(false);
   const [hiddenThought, setHiddenThought] = useState('');
+  const [showHiddenThought, setShowHiddenThought] = useState(false);
   const [phraseOptions, setPhraseOptions] = useState([]);
   const [phrasesStatus, setPhrasesStatus] = useState('loading');
   const [number, setNumber] = useState('');
@@ -38,6 +40,7 @@ export default function Profile() {
   useEffect(() => {
     let isMounted = true;
 
+    // Carga las imágenes disponibles para elegir avatar.
     async function loadProfileImages() {
       try {
         const response = await fetch('/api/profile-images');
@@ -63,6 +66,7 @@ export default function Profile() {
       }
     }
 
+    // Carga las frases identificativas que vienen de la base de datos.
     async function loadKeySentences() {
       try {
         const response = await fetch('/api/key-sentences');
@@ -90,12 +94,14 @@ export default function Profile() {
     loadProfileImages();
     loadKeySentences();
 
+    // Evita actualizar estado si el componente se desmonta durante una petición.
     return () => {
       isMounted = false;
     };
   }, []);
 
   useEffect(() => {
+    // Limpia la redirección programada si el usuario sale antes de tiempo.
     return () => {
       if (redirectTimeoutRef.current) {
         clearTimeout(redirectTimeoutRef.current);
@@ -108,6 +114,7 @@ export default function Profile() {
     setError('');
     setSuccessMessage('');
 
+    // Todos estos campos son necesarios para crear un perfil completo.
     if (
       !alias.trim() ||
       !phrase.trim() ||
@@ -127,6 +134,7 @@ export default function Profile() {
     setSaveStatus('saving');
 
     try {
+      // El backend normaliza textos y guarda la frase contraseña como hash.
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -150,6 +158,7 @@ export default function Profile() {
       setSuccessMessage(
         'Perfil creado correctamente. Redirigiendo a eventos...',
       );
+      // Deja ver el mensaje de éxito antes de entrar a eventos.
       redirectTimeoutRef.current = setTimeout(() => {
         navigate('/page-event');
       }, 1200);
@@ -159,6 +168,7 @@ export default function Profile() {
     }
   };
 
+  // Fuente usada para la tarjeta de previsualización del perfil.
   const previewImageSrc = selectedImage?.src;
 
   return (
@@ -276,18 +286,44 @@ export default function Profile() {
               >
                 Pensamiento más oculto
               </FieldLabel>
-              <input
-                id='hiddenThought'
-                type='password'
-                value={hiddenThought}
-                onChange={(e) => setHiddenThought(e.target.value)}
-                placeholder='Introduce tu frase contraseña'
-                required
-              />
+              <div className={styles.passwordField}>
+                <input
+                  id='hiddenThought'
+                  type={showHiddenThought ? 'text' : 'password'}
+                  value={hiddenThought}
+                  onChange={(e) => setHiddenThought(e.target.value)}
+                  placeholder='Introduce tu frase contraseña'
+                  required
+                />
+                {/* Permite comprobar la frase escrita sin cambiar el valor guardado. */}
+                <button
+                  type='button'
+                  onClick={() =>
+                    setShowHiddenThought((isVisible) => !isVisible)
+                  }
+                  aria-label={
+                    showHiddenThought
+                      ? 'Ocultar frase contraseña'
+                      : 'Mostrar frase contraseña'
+                  }
+                >
+                  {showHiddenThought ? 'Ocultar' : 'Ver'}
+                </button>
+              </div>
             </div>
 
             <div className={styles.formRow}>
-              <FieldLabel htmlFor='number' {...fieldLabelClasses}>
+              <FieldLabel
+                htmlFor='number'
+                tooltip={
+                  <Tooltip id='number-tooltip' {...tooltipClasses}>
+                    Recuerda este número: más adelante se te pedirá junto a tu
+                    pensamiento más oculto y frase identificativa para poder
+                    ingresar.
+                  </Tooltip>
+                }
+                {...fieldLabelClasses}
+              >
                 Número personal
               </FieldLabel>
               <input
@@ -319,6 +355,7 @@ export default function Profile() {
                 </p>
               )}
               {imagesStatus === 'ready' && (
+                // Carrusel compartido: recibe clases para adaptarse al diseño de perfil.
                 <ImageCarousel
                   images={imageOptions}
                   selectedImageId={selectedImage?.id}
@@ -349,6 +386,7 @@ export default function Profile() {
                       src={previewImageSrc}
                       alt='Avatar seleccionado'
                       onError={(event) => {
+                        // Si la URL optimizada falla, intenta cargar la URL original.
                         const fallbackSrc = selectedImage.originalSrc;
 
                         if (

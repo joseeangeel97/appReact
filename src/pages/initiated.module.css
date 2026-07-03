@@ -1,0 +1,189 @@
+/* Fondo y tipografía general de la pantalla de acceso de iniciados. */
+.initiatedMain {
+  background-image: url('../assets/fondos/bg6.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: rgba(0, 0, 0, 0.32);
+  background-blend-mode: overlay;
+  font-family: 'Cinzel Decorative', serif;
+}
+
+/* Cabecera superior con el nombre de la app y el subtítulo de acceso. */
+.title-section {
+  width: min(55vw, 56rem);
+  min-height: 15vh;
+  margin: 0 auto 3rem;
+  padding: 1rem 2rem;
+  text-align: center;
+  box-shadow: 0 10px 15px 8px aquamarine;
+  background: linear-gradient(to top, lab(25% 30 -40), lab(85% -20 50));
+  border-bottom-left-radius: 100%;
+  border-bottom-right-radius: 100%;
+  border-top-left-radius: 25rem;
+  border-top-right-radius: 25rem;
+
+  h1 {
+    margin: 1.4rem 0 0.9rem;
+    font-size: clamp(1.3rem, 2.5vw, 2rem);
+    font-weight: 600;
+    color: aliceblue;
+    text-shadow: 5px -5px 5px aquamarine;
+  }
+
+  p {
+    margin: 0;
+    color: aliceblue;
+    text-shadow: -2px 2px 4px aquamarine;
+  }
+}
+
+/* Caja principal donde vive el formulario de validación. */
+.accessSection {
+  width: min(92vw, 42rem);
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 2rem;
+  box-shadow: 0 0 15px aquamarine;
+  background: linear-gradient(to bottom, lab(25% 30 -40), lab(85% -20 50));
+
+  article {
+    text-align: center;
+
+    h4 {
+      margin: 0 0 1.5rem;
+      font: oblique 400 2rem/1.2 'Cinzel Decorative', serif;
+      color: lab(85.77% -16.27 84.67);
+      text-shadow: 2px 2px black;
+    }
+  }
+}
+
+/* Formulario anidado: etiquetas, inputs, contraseña visible y botón submit. */
+.accessForm {
+  display: grid;
+  gap: 1rem;
+
+  .formRow {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .fieldLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: fit-content;
+    min-height: 1.45rem;
+
+    label {
+      font-weight: 700;
+      color: lab(85.77% -16.27 84.67);
+      text-shadow: 2px 2px black;
+    }
+  }
+
+  .fieldLabelText {
+    font-weight: 700;
+    color: lab(85.77% -16.27 84.67);
+    text-shadow: 2px 2px black;
+  }
+
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 2rem;
+    box-shadow: 5px 5px 5px black inset;
+    padding: 0.55rem 1rem;
+    text-align: center;
+    font-size: 1.05rem;
+
+    &:focus-visible {
+      outline: 3px solid rgba(127, 255, 212, 0.42);
+      outline-offset: 2px;
+    }
+
+    &[type='number'] {
+      /* Oculta las flechas nativas del input numérico. */
+      appearance: textfield;
+      -moz-appearance: textfield;
+
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        margin: 0;
+        -webkit-appearance: none;
+      }
+    }
+  }
+
+  .passwordField {
+    /* Permite colocar el botón Ver/Ocultar dentro del input. */
+    position: relative;
+
+    input {
+      padding-right: 5.8rem;
+    }
+
+    button {
+      position: absolute;
+      top: 50%;
+      right: 0.55rem;
+      transform: translateY(-50%);
+      border: 0;
+      border-radius: 2rem;
+      background: rgba(255, 255, 255, 0.86);
+      color: #111;
+      padding: 0.35rem 0.75rem;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.9rem;
+
+      &:hover {
+        background-color: lab(86.78% -24.28 85.04);
+      }
+
+      &:focus-visible {
+        outline: 3px solid rgba(127, 255, 212, 0.42);
+        outline-offset: 2px;
+      }
+    }
+  }
+
+  .errorMessage {
+    margin: 0;
+    color: #ffcbcb;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
+  }
+
+  button[type='submit'] {
+    padding: 0.5rem;
+    width: 15vw;
+    margin: 0 auto 0 auto;
+    border-radius: 3rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color, filter, 1.5s;
+
+    &:hover {
+      background-color: lab(86.78% -24.28 85.04);
+      filter: brightness(1.8), contrast(1.5);
+    }
+  }
+}
+
+/* Ajustes para que la tarjeta no se desborde en pantallas pequeñas. */
+@media (max-width: 720px) {
+  .title-section {
+    width: min(92vw, 32rem);
+    border-top-left-radius: 8rem;
+    border-top-right-radius: 8rem;
+  }
+
+  .accessSection {
+    padding: 1.25rem;
+  }
+}

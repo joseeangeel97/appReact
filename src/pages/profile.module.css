@@ -1,3 +1,4 @@
+/* Pantalla completa de creación de perfil. */
 .profileMain {
   min-height: 100vh;
   padding: 2rem 1.5rem 3rem;
@@ -10,6 +11,7 @@
   background-size: 50vw;
   background-repeat: repeat;
 
+  /* Contenedor central que agrupa cabecera y formulario. */
   .profileSection {
     max-width: 900px;
     margin: 0 auto;
@@ -17,6 +19,7 @@
     gap: 2rem;
   }
 
+  /* Texto de presentación de la página. */
   .profileHeader {
     color: #f8f8f8;
 
@@ -32,6 +35,7 @@
     }
   }
 
+  /* Formulario principal con todos los campos del perfil. */
   .profileForm {
     box-sizing: border-box;
     display: grid;
@@ -44,6 +48,7 @@
     box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
   }
 
+  /* Cada bloque visual de campo dentro del formulario. */
   .formRow {
     box-sizing: border-box;
     display: grid;
@@ -145,6 +150,7 @@
       color: rgba(248, 248, 248, 0.45);
     }
 
+    /* Oculta los controles nativos del input numérico. */
     input[type='number'] {
       appearance: textfield;
     }
@@ -174,8 +180,51 @@
       min-height: 120px;
       resize: vertical;
     }
+
+    /* Contenedor para colocar el botón Ver/Ocultar encima del campo contraseña. */
+    .passwordField {
+      position: relative;
+
+      input {
+        padding-right: 6rem;
+      }
+
+      button {
+        position: absolute;
+        top: 50%;
+        right: 0.55rem;
+        transform: translateY(-50%);
+        border: 1px solid rgba(255, 215, 0, 0.35);
+        border-radius: 999px;
+        background: rgba(4, 8, 15, 0.9);
+        color: #ffeb8a;
+        padding: 0.35rem 0.75rem;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition:
+          border-color 0.2s ease,
+          background-color 0.2s ease,
+          color 0.2s ease;
+
+        &:hover {
+          border-color: rgba(255, 215, 0, 0.62);
+          background-color: rgba(255, 215, 0, 0.14);
+          color: #fff7bf;
+        }
+
+        &:focus-visible {
+          outline: none;
+          box-shadow:
+            0 0 0 3px rgba(255, 215, 0, 0.14),
+            0 0 22px rgba(255, 215, 0, 0.12);
+        }
+      }
+    }
   }
 
+  /* Etiqueta reutilizable compartida por FieldLabel. */
   .fieldLabel {
     display: inline-flex;
     align-items: center;
@@ -185,6 +234,7 @@
     color: #e8e8e8;
   }
 
+  /* Tooltips informativos de los campos importantes. */
   .tooltipWrapper {
     position: relative;
     display: inline-flex;
@@ -266,6 +316,7 @@
     }
   }
 
+  /* Selector desplegable de frase identificativa. */
   .phraseAccordion {
     position: relative;
     display: grid;
@@ -425,6 +476,7 @@
     color: #ffeb8a;
   }
 
+  /* Selector antiguo de imágenes; se conserva por compatibilidad si se reutiliza. */
   .imagePicker {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -463,6 +515,7 @@
     }
   }
 
+  /* Adaptación visual del carrusel de imágenes al formulario de perfil. */
   .profileCarousel {
     width: min(100%, 480px);
     margin: 0 auto;
@@ -526,6 +579,7 @@
     }
   }
 
+  /* Tarjeta de previsualización con alias, frase, número e imagen elegida. */
   .previewCard {
     background:
       linear-gradient(135deg, rgba(255, 215, 0, 0.08), transparent 42%),
@@ -631,6 +685,7 @@
     }
   }
 
+  /* Botón final de creación de perfil. */
   .submitButton {
     padding: 1rem 1.4rem;
     border: none;
@@ -660,6 +715,7 @@
     }
   }
 
+  /* Mensajes de estado del formulario. */
   .errorMessage {
     margin: 0;
     padding: 0.95rem 1rem;
