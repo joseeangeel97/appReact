@@ -2,7 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import EventBlock from '../components/EventBlock';
+import EventLevelSection from '../components/EventLevelSection';
 import {
   getActiveProfile,
   saveAttendingEvent,
@@ -28,6 +28,45 @@ function getParallaxProfileImage(profileImage) {
   );
 }
 
+function groupEventsByLevel(events) {
+  const groupsByName = new Map();
+
+  for (const event of events) {
+    const rawLevel = event.level || event.nivel || {};
+    const levelName = rawLevel.name || rawLevel.nombre || 'Sin nivel';
+    const levelOrder = Number(rawLevel.order || rawLevel.orden || 999);
+
+    if (!groupsByName.has(levelName)) {
+      groupsByName.set(levelName, {
+        name: levelName,
+        order: levelOrder,
+        events: [],
+      });
+    }
+
+    groupsByName.get(levelName).events.push(event);
+  }
+
+  return [...groupsByName.values()].sort(
+    (firstGroup, secondGroup) =>
+      firstGroup.order - secondGroup.order ||
+      firstGroup.name.localeCompare(secondGroup.name, 'es'),
+  );
+}
+
+function normalizeEventFromApi(event) {
+  const rawLevel = event.level || event.nivel || {};
+
+  return {
+    ...event,
+    level: {
+      name: rawLevel.name || rawLevel.nombre || 'Sin nivel',
+      order: Number(rawLevel.order || rawLevel.orden || 999),
+    },
+    image: event.image || pageBackground,
+  };
+}
+
 export default function PageEvent() {
   const [events, setEvents] = useState([]);
   const [eventsStatus, setEventsStatus] = useState('loading');
@@ -38,6 +77,7 @@ export default function PageEvent() {
   );
   const profileImage = activeProfile?.image;
   const parallaxProfileImage = getParallaxProfileImage(profileImage);
+  const eventGroups = groupEventsByLevel(events);
 
   useEffect(() => {
     let isMounted = true;
@@ -65,10 +105,7 @@ export default function PageEvent() {
         }
 
         setEvents(
-          nextEvents.map((event) => ({
-            ...event,
-            image: event.image || pageBackground,
-          })),
+          nextEvents.map((event) => normalizeEventFromApi(event)),
         );
         setEventsStatus(nextEvents.length > 0 ? 'ready' : 'empty');
       } catch (error) {
@@ -127,6 +164,13 @@ export default function PageEvent() {
           )}
         </section>
 
+        <section className={styles.levelInfoCard}>
+          <p>Cada nivel revela una capa distinta de la experiencia.</p>
+          <p>Cada localización permanece velada hasta la confirmación del invitado.</p>
+          <p>Cada evento existe solo para quienes saben leer la señal.</p>
+          <strong>No se entra por curiosidad. Se entra por invitación.</strong>
+        </section>
+
         <section className={styles.eventsColumn}>
           {eventsStatus === 'loading' && (
             <div className={styles.eventsStatusCard}>Cargando eventos...</div>
@@ -145,13 +189,11 @@ export default function PageEvent() {
           )}
 
           {eventsStatus === 'ready' &&
-            events.map((event, index) => (
-              <EventBlock
-                key={event.id}
-                event={event}
-                mirrored={index % 2 === 1}
+            eventGroups.map((group) => (
+              <EventLevelSection
+                key={group.name}
+                group={group}
                 parallaxImage={parallaxProfileImage}
-                showParallax={index < events.length - 1}
                 onReserve={handleReserve}
               />
             ))}

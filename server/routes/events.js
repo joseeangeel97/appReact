@@ -6,7 +6,19 @@ function getFirstValue(document, fieldNames) {
   for (const fieldName of fieldNames) {
     const value = document[fieldName];
 
-    if (value !== undefined && value !== null && String(value).trim() !== '') {
+    if (value === undefined || value === null) {
+      continue;
+    }
+
+    if (typeof value === 'object') {
+      if (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0) {
+        return value;
+      }
+
+      continue;
+    }
+
+    if (String(value).trim() !== '') {
       return value;
     }
   }
@@ -42,8 +54,29 @@ function formatEventDate(value) {
   return String(value).trim();
 }
 
+function normalizeLevel(value) {
+  if (!value) {
+    return {
+      name: 'Sin nivel',
+      order: 999,
+    };
+  }
+
+  if (typeof value === 'object') {
+    return {
+      name: String(value.nombre || value.name || 'Sin nivel').trim(),
+      order: Number(value.orden || value.order || 999),
+    };
+  }
+
+  return {
+    name: String(value).trim(),
+    order: 999,
+  };
+}
+
 function normalizeEvent(document) {
-  // Expone solo los campos públicos que necesita la UI, evitando claves privadas.
+  // Normaliza el documento de Mongo al contrato usado por la UI.
   const imageUrl = String(
     getFirstValue(document, [
       'image',
@@ -59,8 +92,9 @@ function normalizeEvent(document) {
   return {
     id: String(document._id),
     title: String(getFirstValue(document, ['title', 'titulo', 'nombre'])).trim(),
+    level: normalizeLevel(getFirstValue(document, ['level', 'nivel'])),
     type: String(
-      getFirstValue(document, ['type', 'tipo', 'categoria', 'category', 'nivel']),
+      getFirstValue(document, ['type', 'tipo', 'categoria', 'category']),
     ).trim(),
     date: formatEventDate(
       getFirstValue(document, ['date', 'fecha', 'dia', 'horario']),
@@ -83,6 +117,26 @@ function normalizeEvent(document) {
         'detalle',
       ]),
     ).trim(),
+    accessKey: String(
+      getFirstValue(document, [
+        'accessKey',
+        'claveAcceso',
+        'claveDeAcceso',
+        'codigoAcceso',
+      ]),
+    ).trim(),
+    initialPassword: String(
+      getFirstValue(document, [
+        'initialPassword',
+        'passwordInicial',
+        'password',
+        'claveInicial',
+      ]),
+    ).trim(),
+    status: String(getFirstValue(document, ['status', 'estado'])).trim(),
+    tags: Array.isArray(document.tags)
+      ? document.tags.map((tag) => String(tag).trim()).filter(Boolean)
+      : [],
     image: imageUrl
       ? getCloudinaryImageUrl(imageUrl, {
           width: 1200,
@@ -101,7 +155,14 @@ export function registerEventRoutes(app) {
       const eventsCollection = await getEventsCollection();
       const events = await eventsCollection
         .find({})
-        .sort({ horario: 1, fecha: 1, date: 1, titulo: 1, title: 1 })
+        .sort({
+          'nivel.orden': 1,
+          horario: 1,
+          fecha: 1,
+          date: 1,
+          titulo: 1,
+          title: 1,
+        })
         .toArray();
 
       return res.status(200).json({

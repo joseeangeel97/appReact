@@ -1,4 +1,5 @@
 import Button from './Button';
+import SpotlightCard from './SpotlightCard';
 import styles from './event.module.css';
 
 const getClassName = (...classNames) => classNames.filter(Boolean).join(' ');
@@ -9,12 +10,16 @@ export default function Event({
   date,
   location,
   description,
+  tags = [],
   image,
   onReserve,
   className,
 }) {
   return (
-    <article className={getClassName(styles.eventCard, className)}>
+    <SpotlightCard
+      as='article'
+      className={getClassName(styles.eventCard, className)}
+    >
       <div className={styles.imageFrame}>
         <img src={image} alt={title} />
       </div>
@@ -28,6 +33,13 @@ export default function Event({
           <span>{location}</span>
         </div>
         <p className={styles.eventDescription}>{description}</p>
+        {tags.length > 0 && (
+          <div className={styles.eventTags} aria-label='Etiquetas del evento'>
+            {tags.map((tag) => (
+              <span key={tag}>{tag}</span>
+            ))}
+          </div>
+        )}
         <Button
           type='button'
           className={styles.reserveButton}
@@ -36,6 +48,6 @@ export default function Event({
           Reservar
         </Button>
       </div>
-    </article>
+    </SpotlightCard>
   );
 }

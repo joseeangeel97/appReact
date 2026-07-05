@@ -172,10 +172,178 @@
     line-height: 1.55;
   }
 
+  .levelInfoCard {
+    position: relative;
+    width: min(100%, 1440px);
+    margin: 0 auto 3rem;
+    padding: clamp(1.35rem, 3vw, 2.2rem);
+    overflow: hidden;
+    border: 1px solid rgba(255, 215, 0, 0.22);
+    border-radius: 1.2rem;
+    background:
+      radial-gradient(
+        circle at 12% 20%,
+        rgba(127, 255, 212, 0.16),
+        transparent 20rem
+      ),
+      radial-gradient(
+        circle at 90% 80%,
+        rgba(255, 215, 0, 0.12),
+        transparent 18rem
+      ),
+      rgba(3, 7, 14, 0.82);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 0 0 1px rgba(127, 255, 212, 0.08),
+      0 20px 46px rgba(0, 0, 0, 0.32),
+      0 0 24px rgba(127, 255, 212, 0.1);
+    backdrop-filter: blur(10px);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        110deg,
+        transparent,
+        rgba(255, 255, 255, 0.07) 42%,
+        transparent 68%
+      );
+      pointer-events: none;
+    }
+
+    p,
+    strong {
+      position: relative;
+    }
+
+    p {
+      margin: 0 0 0.45rem;
+      color: rgba(232, 247, 243, 0.88);
+      line-height: 1.65;
+    }
+
+    strong {
+      display: inline-block;
+      margin-top: 0.65rem;
+      color: #fff7bf;
+      font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+      line-height: 1.45;
+      text-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.58),
+        0 0 18px rgba(127, 255, 212, 0.24);
+    }
+  }
+
   /* Lista vertical de eventos, casi a ancho completo. */
   .eventsColumn {
     width: min(100%, 1480px);
     margin: 0 auto;
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+  }
+
+  .levelSection {
+    display: grid;
+    gap: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .levelHeader {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2rem);
+    padding: clamp(1.1rem, 2.4vw, 1.75rem);
+    overflow: hidden;
+    border: 1px solid rgba(255, 215, 0, 0.24);
+    border-radius: 1rem;
+    background:
+      radial-gradient(
+        circle at 10% 18%,
+        rgba(127, 255, 212, 0.18),
+        transparent 18rem
+      ),
+      linear-gradient(135deg, rgba(255, 215, 0, 0.1), transparent 48%),
+      rgba(3, 7, 14, 0.84);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 0 0 1px rgba(127, 255, 212, 0.08),
+      0 18px 38px rgba(0, 0, 0, 0.28),
+      0 0 24px rgba(127, 255, 212, 0.1);
+    backdrop-filter: blur(10px);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        110deg,
+        transparent,
+        rgba(255, 255, 255, 0.07) 42%,
+        transparent 68%
+      );
+      pointer-events: none;
+    }
+
+    span,
+    h2,
+    p {
+      position: relative;
+    }
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: clamp(6.5rem, 12vw, 9rem);
+      min-height: clamp(4.5rem, 8vw, 6rem);
+      border: 1px solid rgba(127, 255, 212, 0.32);
+      border-radius: 0.75rem;
+      background:
+        linear-gradient(135deg, rgba(127, 255, 212, 0.14), transparent 58%),
+        rgba(3, 8, 16, 0.68);
+      color: rgba(255, 235, 138, 0.78);
+      font-size: clamp(0.9rem, 1.4vw, 1.18rem);
+      font-weight: 800;
+      letter-spacing: 0.14rem;
+      text-align: center;
+      text-transform: uppercase;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 18px rgba(127, 255, 212, 0.12);
+    }
+
+    h2 {
+      margin: 0;
+      color: #f8fbff;
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1.08;
+      text-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.58),
+        0 0 18px rgba(127, 255, 212, 0.34);
+
+      &::before {
+        content: 'Nivel: ';
+        color: rgba(255, 235, 138, 0.76);
+        font-size: 0.42em;
+        letter-spacing: 0.12rem;
+        text-transform: uppercase;
+        vertical-align: middle;
+      }
+    }
+
+    p {
+      margin: 0;
+      color: rgba(232, 247, 243, 0.82);
+      line-height: 1.55;
+      text-align: right;
+    }
+  }
+
+  .levelEvents {
     display: grid;
     gap: clamp(1rem, 2vw, 1.75rem);
   }
@@ -223,6 +391,16 @@
     .aliasBadge {
       width: 100%;
       box-sizing: border-box;
+    }
+
+    .levelHeader {
+      box-sizing: border-box;
+      width: 100%;
+      grid-template-columns: 1fr;
+
+      p {
+        text-align: left;
+      }
     }
   }
 }

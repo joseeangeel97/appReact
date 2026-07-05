@@ -20,6 +20,7 @@ export default function EventBlock({
         date={event.date}
         location={event.location}
         description={event.description}
+        tags={event.tags}
         image={event.image}
         onReserve={() => onReserve(event)}
       />

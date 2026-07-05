@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import SpotlightCard from '../components/SpotlightCard';
 import {
   getActiveProfile,
   getAttendingEvents,
@@ -25,6 +26,19 @@ function useAttendingEvents() {
     subscribeAttendingEvents,
     getAttendingEvents,
     () => [],
+  );
+}
+
+function AccessDetail({ label, value }) {
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <SpotlightCard className={styles.accessDetail}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </SpotlightCard>
   );
 }
 
@@ -89,10 +103,25 @@ export default function ProfileSummary() {
                 >
                   {event.image && <img src={event.image} alt={event.title} />}
                   <div>
-                    <span>{event.type}</span>
+                    <span>
+                      Nivel {event.level?.order || '-'} ·{' '}
+                      {event.level?.name || 'Sin nivel'}
+                    </span>
                     <h3>{event.title}</h3>
+                    <p>{event.type}</p>
                     <p>{event.date}</p>
                     <p>{event.location}</p>
+                    <div className={styles.eventAccessDetails}>
+                      <AccessDetail
+                        label='Código de acceso'
+                        value={event.accessKey}
+                      />
+                      <AccessDetail
+                        label='Password inicial'
+                        value={event.initialPassword}
+                      />
+                      <AccessDetail label='Estado' value={event.status} />
+                    </div>
                   </div>
                 </article>
               ))}

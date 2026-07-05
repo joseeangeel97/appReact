@@ -1,0 +1,32 @@
+.spotlightCard {
+  --spotlight-x: 50%;
+  --spotlight-y: 50%;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle var(--spotlight-size, 9rem) at var(--spotlight-x) var(--spotlight-y),
+      rgba(127, 255, 212, var(--spotlight-alpha, 0.26)),
+      rgba(127, 255, 212, 0.08) 34%,
+      rgba(0, 0, 0, 0.2) 72%,
+      rgba(0, 0, 0, var(--spotlight-dark-alpha, 0.34))
+    );
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
