@@ -16,6 +16,8 @@ export const keySentencesCollectionName =
   globalThis.process?.env?.KEY_SENTENCES_COLLECTION || 'key_sentences';
 export const profileImagesCollectionName =
   globalThis.process?.env?.PROFILE_IMAGES_COLLECTION || 'images_profile';
+export const eventsCollectionName =
+  globalThis.process?.env?.EVENTS_COLLECTION || 'events';
 
 // Credenciales iniciales para asegurar que exista una entrada de acceso.
 export const defaultAccessName =

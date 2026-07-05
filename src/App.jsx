@@ -4,6 +4,7 @@ import About from './pages/About';
 import Hall from './pages/Hall';
 import PageEvent from './pages/pageEvent';
 import Profile from './pages/profile';
+import ProfileSummary from './pages/ProfileSummary.jsx';
 import Initiated from './pages/initiated';
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
       <Route path='/about' element={<About />} />
       <Route path='/page-event' element={<PageEvent />} />
       <Route path='/profile' element={<Profile />} />
+      <Route path='/profile-summary' element={<ProfileSummary />} />
     </Routes>
   );
 }

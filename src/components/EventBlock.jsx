@@ -21,7 +21,7 @@ export default function EventBlock({
         location={event.location}
         description={event.description}
         image={event.image}
-        onReserve={() => onReserve(event.title)}
+        onReserve={() => onReserve(event)}
       />
 
       {showParallax && (

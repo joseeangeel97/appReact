@@ -1,10 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  getActiveProfile,
+  subscribeActiveProfile,
+} from '../utils/sessionProfile';
 import styles from './Header.module.css';
 
 export default function Header({ className }) {
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
+  const activeProfile = useSyncExternalStore(
+    subscribeActiveProfile,
+    getActiveProfile,
+    () => null,
+  );
 
   useEffect(() => {
     const onScroll = () => {
@@ -20,6 +29,10 @@ export default function Header({ className }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  if (!activeProfile) {
+    return null;
+  }
+
   return (
     <header
       className={`${styles.headerBase} ${hidden ? styles.hiddenHeader : styles.visibleHeader} ${className ?? ''}`}
@@ -31,7 +44,7 @@ export default function Header({ className }) {
       <nav>
         <Link to='/'>Inicio</Link>
         <Link to='/page-event'>Eventos</Link>
-        <Link to='/profile'>Perfil</Link>
+        <Link to='/profile-summary'>Perfil</Link>
         <Link to='/about'>Acerca</Link>
       </nav>
     </header>

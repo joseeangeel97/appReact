@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 import { isProduction } from './server/config.js';
 import { registerAuthRoutes } from './server/routes/auth.js';
+import { registerEventRoutes } from './server/routes/events.js';
 import { registerProfileRoutes } from './server/routes/profile.js';
 import { configureSsr } from './server/ssr.js';
 
@@ -21,6 +22,7 @@ async function createServer() {
 
   // Rutas de autenticación general y de perfiles/iniciados.
   registerAuthRoutes(app);
+  registerEventRoutes(app);
   registerProfileRoutes(app);
 
   // En desarrollo usa Vite como middleware; en producción sirve dist/.
