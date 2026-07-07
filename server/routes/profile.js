@@ -8,6 +8,11 @@ import {
   getUsersCollection,
 } from '../db.js';
 import { normalizeProfileText } from '../utils/text.js';
+import {
+  readImageSelection,
+  readInteger,
+  readString,
+} from '../utils/validation.js';
 
 export function registerProfileRoutes(app) {
   // Devuelve las imágenes disponibles para el carrusel de creación de perfil.
@@ -104,12 +109,22 @@ export function registerProfileRoutes(app) {
   // Login de iniciados: comprueba alias, frase, contraseña y número del perfil.
   app.post('/api/initiated', async (req, res) => {
     // Los textos se comparan sin acentos y en minúsculas.
-    const alias = normalizeProfileText(req.body?.alias);
-    const phrase = normalizeProfileText(req.body?.phrase);
-    const rawHiddenThought = String(req.body?.hiddenThought || '').trim();
+    const alias = readString(req.body?.alias, {
+      maxLength: 80,
+      normalize: normalizeProfileText,
+    });
+    const phrase = readString(req.body?.phrase, {
+      maxLength: 220,
+      normalize: normalizeProfileText,
+    });
+    const rawHiddenThought = readString(req.body?.hiddenThought, {
+      maxLength: 220,
+    });
     const hiddenThought = normalizeProfileText(rawHiddenThought);
-    const rawNumber = String(req.body?.number || '').trim();
-    const number = Number(rawNumber);
+    const { rawText: rawNumber, number } = readInteger(req.body?.number, {
+      min: 1,
+      max: 999999,
+    });
 
     if (!alias || !phrase || !hiddenThought || !Number.isFinite(number)) {
       return res.status(400).json({
@@ -192,29 +207,29 @@ export function registerProfileRoutes(app) {
 
   // Crea un perfil nuevo con datos normalizados y la frase contraseña protegida.
   app.post('/api/users', async (req, res) => {
-    const alias = normalizeProfileText(req.body?.alias);
-    const phrase = normalizeProfileText(req.body?.phrase);
-    const hiddenThought = normalizeProfileText(req.body?.hiddenThought);
-    const number = Number(req.body?.number);
-    const image = req.body?.image;
-    const selectedImage =
-      image && typeof image === 'object'
-        ? {
-            id: String(image.id || '').trim(),
-            label: String(image.label || '').trim(),
-            category: String(image.category || '').trim(),
-            description: String(image.description || '').trim(),
-            src: String(image.src || '').trim(),
-            originalSrc: String(image.originalSrc || '').trim(),
-          }
-        : null;
+    const alias = readString(req.body?.alias, {
+      maxLength: 80,
+      normalize: normalizeProfileText,
+    });
+    const phrase = readString(req.body?.phrase, {
+      maxLength: 220,
+      normalize: normalizeProfileText,
+    });
+    const hiddenThought = readString(req.body?.hiddenThought, {
+      maxLength: 220,
+      normalize: normalizeProfileText,
+    });
+    const { number } = readInteger(req.body?.number, {
+      min: 1,
+      max: 999999,
+    });
+    const selectedImage = readImageSelection(req.body?.image);
 
     if (
       !alias ||
       !phrase ||
       !hiddenThought ||
       !Number.isFinite(number) ||
-      number < 1 ||
       !selectedImage?.id ||
       !selectedImage?.src
     ) {

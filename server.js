@@ -7,6 +7,13 @@ import { isProduction } from './server/config.js';
 import { registerAuthRoutes } from './server/routes/auth.js';
 import { registerEventRoutes } from './server/routes/events.js';
 import { registerProfileRoutes } from './server/routes/profile.js';
+import {
+  createRateLimiter,
+  jsonErrorHandler,
+  noSqlInjectionGuard,
+  securityHeaders,
+  startRateLimitCleanup,
+} from './server/security.js';
 import { configureSsr } from './server/ssr.js';
 
 // Punto de entrada del backend: crea Express, registra rutas y sirve React.
@@ -17,8 +24,47 @@ async function createServer() {
   const app = express();
   const httpServer = createHttpServer(app);
 
+  // Express debe respetar la IP real cuando la app esté detrás de un proxy seguro.
+  if (isProduction) {
+    app.set('trust proxy', 1);
+  }
+
+  app.disable('x-powered-by');
+  app.use(securityHeaders);
+
   // Permite leer cuerpos JSON enviados desde los formularios del frontend.
-  app.use(express.json());
+  app.use(express.json({ limit: '32kb', strict: true }));
+  app.use(jsonErrorHandler);
+
+  // Corta intentos de inyección NoSQL y limita abuso antes de llegar a MongoDB.
+  app.use(['/api', '/login'], noSqlInjectionGuard);
+  app.use(
+    ['/api', '/login'],
+    createRateLimiter({
+      name: 'api',
+      windowMs: 15 * 60 * 1000,
+      max: 300,
+    }),
+  );
+  app.use(
+    ['/login', '/api/initiated'],
+    createRateLimiter({
+      name: 'auth',
+      windowMs: 15 * 60 * 1000,
+      max: 20,
+      message: 'Demasiados intentos. Inténtalo de nuevo más tarde',
+    }),
+  );
+  app.use(
+    '/api/users',
+    createRateLimiter({
+      name: 'profile-create',
+      windowMs: 60 * 60 * 1000,
+      max: 10,
+      message: 'Demasiados perfiles creados. Inténtalo de nuevo más tarde',
+    }),
+  );
+  startRateLimitCleanup();
 
   // Rutas de autenticación general y de perfiles/iniciados.
   registerAuthRoutes(app);

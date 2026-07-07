@@ -1,12 +1,19 @@
 import bcrypt from 'bcryptjs';
 
 import { getAuthCollection } from '../db.js';
+import { readString } from '../utils/validation.js';
 
 export function registerAuthRoutes(app) {
   // Login principal: valida el santo y seña contra la colección access_keys.
   app.post('/login', async (req, res) => {
-    const name = String(req.body?.name || '').trim();
-    const password = String(req.body?.password || '').trim();
+    const name = readString(req.body?.name, { maxLength: 120 });
+    const password = readString(req.body?.password, { maxLength: 200 });
+
+    if (!name || !password) {
+      return res
+        .status(400)
+        .json({ ok: false, message: 'Santo y seña obligatorios' });
+    }
 
     try {
       const authCollection = await getAuthCollection();
