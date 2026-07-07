@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import FieldLabel from '../components/FieldLabel';
 import ImageCarousel from '../components/ImageCarousel';
 import Tooltip from '../components/Tooltip';
-import { saveActiveProfile } from '../utils/sessionProfile';
+import { useSessionActions } from '../utils/sessionProfile';
 import styles from './profile.module.css';
 
 const fieldLabelClasses = {
@@ -22,6 +22,7 @@ const tooltipClasses = {
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { replaceSession } = useSessionActions();
   const redirectTimeoutRef = useRef(null);
   // Datos que el usuario define y que después se usarán para el acceso de iniciado.
   const [alias, setAlias] = useState('');
@@ -145,7 +146,8 @@ export default function Profile() {
           phrase,
           hiddenThought,
           number,
-          image: selectedImage,
+          // No persistimos la imagen que manda el navegador; el servidor valida este id.
+          imageId: selectedImage.id,
         }),
       });
 
@@ -158,7 +160,7 @@ export default function Profile() {
 
       const data = await response.json();
 
-      saveActiveProfile(data.profile);
+      replaceSession(data.session);
       setSaveStatus('success');
       setSuccessMessage(
         'Perfil creado correctamente. Redirigiendo a eventos...',

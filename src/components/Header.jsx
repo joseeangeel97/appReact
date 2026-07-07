@@ -1,19 +1,12 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  getActiveProfile,
-  subscribeActiveProfile,
-} from '../utils/sessionProfile';
+import { useActiveProfile } from '../utils/sessionProfile';
 import styles from './Header.module.css';
 
 export default function Header({ className }) {
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
-  const activeProfile = useSyncExternalStore(
-    subscribeActiveProfile,
-    getActiveProfile,
-    () => null,
-  );
+  const activeProfile = useActiveProfile();
 
   useEffect(() => {
     const onScroll = () => {

@@ -1,12 +1,11 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import EventLevelSection from '../components/EventLevelSection';
 import {
-  getActiveProfile,
-  saveAttendingEvent,
-  subscribeActiveProfile,
+  useActiveProfile,
+  useSessionActions,
 } from '../utils/sessionProfile';
 import pageBackground from '../assets/fondos/bg3.png';
 import styles from './pageEvent.module.css';
@@ -70,11 +69,8 @@ function normalizeEventFromApi(event) {
 export default function PageEvent() {
   const [events, setEvents] = useState([]);
   const [eventsStatus, setEventsStatus] = useState('loading');
-  const activeProfile = useSyncExternalStore(
-    subscribeActiveProfile,
-    getActiveProfile,
-    () => null,
-  );
+  const activeProfile = useActiveProfile();
+  const { saveAttendingEvent } = useSessionActions();
   const profileImage = activeProfile?.image;
   const parallaxProfileImage = getParallaxProfileImage(profileImage);
   const eventGroups = groupEventsByLevel(events);
@@ -124,9 +120,13 @@ export default function PageEvent() {
     };
   }, []);
 
-  const handleReserve = (event) => {
-    saveAttendingEvent(event);
-    window.alert(`Reserva enviada para: ${event.title}`);
+  const handleReserve = async (event) => {
+    try {
+      await saveAttendingEvent(event);
+      window.alert(`Reserva enviada para: ${event.title}`);
+    } catch {
+      window.alert('Inicia sesión para reservar eventos');
+    }
   };
 
   return (

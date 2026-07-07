@@ -75,7 +75,7 @@ function normalizeLevel(value) {
   };
 }
 
-function normalizeEvent(document) {
+export function normalizeEvent(document) {
   // Normaliza el documento de Mongo al contrato usado por la UI.
   const imageUrl = String(
     getFirstValue(document, [

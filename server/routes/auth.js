@@ -32,7 +32,13 @@ export function registerAuthRoutes(app) {
           .json({ ok: false, message: 'Santo o seña incorrecta' });
       }
 
-      return res.status(200).json({ ok: true });
+      const session = req.setServerSession({
+        accessGranted: true,
+        profile: null,
+        attendingEvents: [],
+      });
+
+      return res.status(200).json({ ok: true, session });
     } catch (error) {
       console.error('MongoDB login error:', error);
 

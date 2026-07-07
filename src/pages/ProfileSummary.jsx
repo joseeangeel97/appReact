@@ -1,33 +1,11 @@
-import { useSyncExternalStore } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SpotlightCard from '../components/SpotlightCard';
-import {
-  getActiveProfile,
-  getAttendingEvents,
-  subscribeActiveProfile,
-  subscribeAttendingEvents,
-} from '../utils/sessionProfile';
+import { useActiveProfile, useAttendingEvents } from '../utils/sessionProfile';
 import pageBackground from '../assets/fondos/bg3.png';
 import styles from './ProfileSummary.module.css';
-
-function useActiveProfile() {
-  return useSyncExternalStore(
-    subscribeActiveProfile,
-    getActiveProfile,
-    () => null,
-  );
-}
-
-function useAttendingEvents() {
-  return useSyncExternalStore(
-    subscribeAttendingEvents,
-    getAttendingEvents,
-    () => [],
-  );
-}
 
 function AccessDetail({ label, value }) {
   if (!value) {

@@ -7,6 +7,7 @@ import { isProduction } from './server/config.js';
 import { registerAuthRoutes } from './server/routes/auth.js';
 import { registerEventRoutes } from './server/routes/events.js';
 import { registerProfileRoutes } from './server/routes/profile.js';
+import { registerSessionRoutes } from './server/routes/session.js';
 import {
   createRateLimiter,
   jsonErrorHandler,
@@ -14,6 +15,7 @@ import {
   securityHeaders,
   startRateLimitCleanup,
 } from './server/security.js';
+import { sessionMiddleware, startSessionCleanup } from './server/session.js';
 import { configureSsr } from './server/ssr.js';
 
 // Punto de entrada del backend: crea Express, registra rutas y sirve React.
@@ -65,9 +67,12 @@ async function createServer() {
     }),
   );
   startRateLimitCleanup();
+  app.use(sessionMiddleware);
+  startSessionCleanup();
 
   // Rutas de autenticación general y de perfiles/iniciados.
   registerAuthRoutes(app);
+  registerSessionRoutes(app);
   registerEventRoutes(app);
   registerProfileRoutes(app);
 

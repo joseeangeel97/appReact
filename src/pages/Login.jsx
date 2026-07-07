@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Button from '../components/Button';
+import { useSessionActions } from '../utils/sessionProfile';
 import styles from './login.module.css';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { replaceSession } = useSessionActions();
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -28,6 +30,9 @@ export default function Login() {
         return;
       }
 
+      const data = await response.json();
+
+      replaceSession(data.session);
       navigate('/profile');
     } catch {
       setError('Error de conexión, intenta nuevamente');

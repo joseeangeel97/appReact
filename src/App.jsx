@@ -6,17 +6,20 @@ import PageEvent from './pages/pageEvent';
 import Profile from './pages/profile';
 import ProfileSummary from './pages/ProfileSummary.jsx';
 import Initiated from './pages/initiated';
+import SessionProvider from './utils/SessionProvider.jsx';
 
-export default function App() {
+export default function App({ initialSession }) {
   return (
-    <Routes>
-      <Route path='/' element={<Hall />} />
-      <Route path='/login' element={<Login />} />
-      <Route path='/login/initiated' element={<Initiated />} />
-      <Route path='/about' element={<About />} />
-      <Route path='/page-event' element={<PageEvent />} />
-      <Route path='/profile' element={<Profile />} />
-      <Route path='/profile-summary' element={<ProfileSummary />} />
-    </Routes>
+    <SessionProvider initialSession={initialSession}>
+      <Routes>
+        <Route path='/' element={<Hall />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/login/initiated' element={<Initiated />} />
+        <Route path='/about' element={<About />} />
+        <Route path='/page-event' element={<PageEvent />} />
+        <Route path='/profile' element={<Profile />} />
+        <Route path='/profile-summary' element={<ProfileSummary />} />
+      </Routes>
+    </SessionProvider>
   );
 }

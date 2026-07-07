@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { ObjectId } from 'mongodb';
 
 import { getCloudinaryImageUrl } from '../cloudinary.js';
 import { bcryptSaltRounds } from '../config.js';
@@ -8,11 +9,60 @@ import {
   getUsersCollection,
 } from '../db.js';
 import { normalizeProfileText } from '../utils/text.js';
-import {
-  readImageSelection,
-  readInteger,
-  readString,
-} from '../utils/validation.js';
+import { readInteger, readString } from '../utils/validation.js';
+
+function getPublicProfile(profile, fallback = {}) {
+  return {
+    alias: profile.alias || fallback.alias || '',
+    number: profile.number ?? fallback.number ?? null,
+    image: profile.image || fallback.image || null,
+  };
+}
+
+function normalizeProfileImage(image) {
+  return {
+    id: image.slug || String(image._id),
+    label: image.titulo || image.slug || 'Imagen de perfil',
+    category: image.categoria || '',
+    description: image.descripcion || '',
+    src: getCloudinaryImageUrl(image.imagenUrl, {
+      width: 900,
+      height: 900,
+    }),
+    originalSrc: image.imagenUrl,
+  };
+}
+
+async function getTrustedProfileImageById(imageId) {
+  // El navegador elige por id; la imagen guardada sale de Mongo, no del payload.
+  const profileImagesCollection = await getProfileImagesCollection();
+  const filters = [{ slug: imageId }];
+
+  if (ObjectId.isValid(imageId)) {
+    filters.push({ _id: new ObjectId(imageId) });
+  }
+
+  const image = await profileImagesCollection.findOne(
+    {
+      $and: [
+        { imagenUrl: { $type: 'string', $ne: '' } },
+        { $or: filters },
+      ],
+    },
+    {
+      projection: {
+        _id: 1,
+        titulo: 1,
+        slug: 1,
+        categoria: 1,
+        descripcion: 1,
+        imagenUrl: 1,
+      },
+    },
+  );
+
+  return image ? normalizeProfileImage(image) : null;
+}
 
 export function registerProfileRoutes(app) {
   // Devuelve las imágenes disponibles para el carrusel de creación de perfil.
@@ -39,17 +89,7 @@ export function registerProfileRoutes(app) {
       return res.status(200).json({
         ok: true,
         // El frontend espera objetos ya preparados para ImageCarousel.
-        images: images.map((image) => ({
-          id: image.slug || String(image._id),
-          label: image.titulo || image.slug || 'Imagen de perfil',
-          category: image.categoria || '',
-          description: image.descripcion || '',
-          src: getCloudinaryImageUrl(image.imagenUrl, {
-            width: 900,
-            height: 900,
-          }),
-          originalSrc: image.imagenUrl,
-        })),
+        images: images.map(normalizeProfileImage),
       });
     } catch (error) {
       console.error('MongoDB profile images error:', error);
@@ -180,13 +220,20 @@ export function registerProfileRoutes(app) {
           profilePhrase === phrase &&
           (hiddenThoughtMatchesHash || hiddenThoughtMatchesPlainText)
         ) {
+          const publicProfile = getPublicProfile(profile, {
+            alias,
+            number,
+          });
+          const session = req.setServerSession({
+            accessGranted: true,
+            profile: publicProfile,
+            attendingEvents: [],
+          });
+
           return res.status(200).json({
             ok: true,
-            profile: {
-              alias: profile.alias || alias,
-              number: profile.number ?? number,
-              image: profile.image || null,
-            },
+            session,
+            profile: publicProfile,
           });
         }
       }
@@ -207,6 +254,13 @@ export function registerProfileRoutes(app) {
 
   // Crea un perfil nuevo con datos normalizados y la frase contraseña protegida.
   app.post('/api/users', async (req, res) => {
+    if (!req.getPublicSession().accessGranted) {
+      return res.status(401).json({
+        ok: false,
+        message: 'Inicia sesión antes de crear un perfil',
+      });
+    }
+
     const alias = readString(req.body?.alias, {
       maxLength: 80,
       normalize: normalizeProfileText,
@@ -223,15 +277,14 @@ export function registerProfileRoutes(app) {
       min: 1,
       max: 999999,
     });
-    const selectedImage = readImageSelection(req.body?.image);
+    const imageId = readString(req.body?.imageId, { maxLength: 120 });
 
     if (
       !alias ||
       !phrase ||
       !hiddenThought ||
       !Number.isFinite(number) ||
-      !selectedImage?.id ||
-      !selectedImage?.src
+      !imageId
     ) {
       return res.status(400).json({
         ok: false,
@@ -240,6 +293,16 @@ export function registerProfileRoutes(app) {
     }
 
     try {
+      // Revalida la imagen elegida contra la colección permitida antes de crear usuario.
+      const selectedImage = await getTrustedProfileImageById(imageId);
+
+      if (!selectedImage) {
+        return res.status(400).json({
+          ok: false,
+          message: 'La imagen seleccionada no es válida',
+        });
+      }
+
       const usersCollection = await getUsersCollection();
       const createdAt = new Date();
       // La frase contraseña nunca se guarda en claro en perfiles nuevos.
@@ -256,15 +319,22 @@ export function registerProfileRoutes(app) {
         createdAt,
         updatedAt: createdAt,
       });
+      const publicProfile = {
+        alias,
+        number,
+        image: selectedImage,
+      };
+      const session = req.setServerSession({
+        accessGranted: true,
+        profile: publicProfile,
+        attendingEvents: [],
+      });
 
       return res.status(201).json({
         ok: true,
+        session,
         userId: String(result.insertedId),
-        profile: {
-          alias,
-          number,
-          image: selectedImage,
-        },
+        profile: publicProfile,
       });
     } catch (error) {
       console.error('MongoDB user profile error:', error);

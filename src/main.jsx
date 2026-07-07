@@ -8,7 +8,7 @@ hydrateRoot(
   document.getElementById('root'),
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <App initialSession={window.__MINIHUB_SESSION__} />
     </BrowserRouter>
   </StrictMode>,
 );

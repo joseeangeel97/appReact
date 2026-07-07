@@ -2,22 +2,14 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
 
-import { useSyncExternalStore } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  clearActiveProfile,
-  getActiveProfile,
-  subscribeActiveProfile,
-} from '../utils/sessionProfile';
+import { useActiveProfile, useSessionActions } from '../utils/sessionProfile';
 import styles from './hall.module.css';
 
 export default function Hall() {
   const navigate = useNavigate();
-  const activeProfile = useSyncExternalStore(
-    subscribeActiveProfile,
-    getActiveProfile,
-    () => null,
-  );
+  const activeProfile = useActiveProfile();
+  const { clearSession } = useSessionActions();
 
   const handleGoHome = () => {
     navigate('/login');
@@ -27,8 +19,8 @@ export default function Hall() {
     navigate('/login/initiated');
   };
 
-  const handleLogout = () => {
-    clearActiveProfile();
+  const handleLogout = async () => {
+    await clearSession();
   };
 
   return (

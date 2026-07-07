@@ -38,20 +38,3 @@ export function readInteger(value, { min, max } = {}) {
     number,
   };
 }
-
-export function readImageSelection(value) {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return null;
-  }
-
-  const selectedImage = {
-    id: readString(value.id, { maxLength: 120 }),
-    label: readString(value.label, { maxLength: 160 }),
-    category: readString(value.category, { maxLength: 80 }),
-    description: readString(value.description, { maxLength: 500 }),
-    src: readString(value.src, { maxLength: 1200 }),
-    originalSrc: readString(value.originalSrc, { maxLength: 1200 }),
-  };
-
-  return selectedImage.id && selectedImage.src ? selectedImage : null;
-}

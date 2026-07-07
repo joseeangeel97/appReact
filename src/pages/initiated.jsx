@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import Button from '../components/Button';
 import FieldLabel from '../components/FieldLabel';
-import { saveActiveProfile } from '../utils/sessionProfile';
+import { useSessionActions } from '../utils/sessionProfile';
 import styles from './initiated.module.css';
 
 const fieldLabelClasses = {
@@ -13,6 +13,7 @@ const fieldLabelClasses = {
 
 export default function Initiated() {
   const navigate = useNavigate();
+  const { replaceSession } = useSessionActions();
   // Campos que deben coincidir con un perfil existente en la base de datos.
   const [alias, setAlias] = useState('');
   const [phrase, setPhrase] = useState('');
@@ -61,7 +62,7 @@ export default function Initiated() {
 
       const data = await response.json();
 
-      saveActiveProfile(data.profile);
+      replaceSession(data.session);
       setStatus('success');
       // Si el acceso es correcto, entra directamente a la página de eventos.
       navigate('/page-event');
