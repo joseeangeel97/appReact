@@ -1,11 +1,12 @@
 import { randomBytes } from 'node:crypto';
 
-import { isProduction } from './config.js';
+import { isProduction, sessionsCollectionName } from './config.js';
+import { getMongoDb } from './db.js';
 
 const SESSION_COOKIE_NAME = 'minihub_session';
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
-// Store de sesiones en servidor: el navegador solo recibe el id opaco en cookie.
-const sessionsById = new Map();
+
+let sessionsCollectionPromise;
 
 function parseCookies(cookieHeader = '') {
   return cookieHeader.split(';').reduce((cookies, cookie) => {
@@ -76,22 +77,66 @@ function clearSessionCookie(res) {
   res.setHeader('Set-Cookie', options.join('; '));
 }
 
-function readSession(sessionId) {
-  const session = sessionsById.get(sessionId);
+async function getSessionsCollection() {
+  if (!sessionsCollectionPromise) {
+    sessionsCollectionPromise = (async () => {
+      const db = await getMongoDb();
+      const collection = db.collection(sessionsCollectionName);
+
+      // Mongo elimina automáticamente las sesiones vencidas con este índice TTL.
+      await collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+      return collection;
+    })();
+  }
+
+  return sessionsCollectionPromise;
+}
+
+async function readSession(sessionId) {
+  const collection = await getSessionsCollection();
+  const session = await collection.findOne({ _id: sessionId });
 
   if (!session) {
     return null;
   }
 
-  if (session.expiresAt <= Date.now()) {
-    sessionsById.delete(sessionId);
+  if (session.expiresAt <= new Date()) {
+    await collection.deleteOne({ _id: sessionId });
     return null;
   }
 
-  // Sesión deslizante: cada request válida renueva la expiración.
-  session.expiresAt = Date.now() + SESSION_TTL_MS;
+  const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
 
-  return session;
+  // Sesión deslizante: cada request válida renueva la expiración en Mongo.
+  await collection.updateOne({ _id: sessionId }, { $set: { expiresAt } });
+
+  return {
+    ...session,
+    expiresAt,
+  };
+}
+
+async function writeSession(sessionId, data) {
+  const collection = await getSessionsCollection();
+  const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
+  const document = {
+    _id: sessionId,
+    data: normalizeSessionData(data),
+    expiresAt,
+    updatedAt: new Date(),
+  };
+
+  await collection.updateOne(
+    { _id: sessionId },
+    {
+      $set: document,
+      $setOnInsert: { createdAt: new Date() },
+    },
+    { upsert: true },
+  );
+
+  return document;
 }
 
 export function getPublicSession(session) {
@@ -99,58 +144,50 @@ export function getPublicSession(session) {
   return normalizeSessionData(session?.data);
 }
 
-export function sessionMiddleware(req, res, next) {
-  const cookies = parseCookies(req.headers.cookie);
-  const sessionId = cookies[SESSION_COOKIE_NAME];
-  const session = sessionId ? readSession(sessionId) : null;
+export async function sessionMiddleware(req, res, next) {
+  try {
+    const cookies = parseCookies(req.headers.cookie);
+    const sessionId = cookies[SESSION_COOKIE_NAME];
+    const session = sessionId ? await readSession(sessionId) : null;
 
-  req.sessionId = session ? sessionId : null;
-  req.session = session;
-  req.getPublicSession = () => getPublicSession(req.session);
-  req.setServerSession = (data) => {
-    // Reutiliza la sesión si existe; si no, crea un id criptográficamente aleatorio.
-    const nextSessionId = req.sessionId || createSessionId();
-    const nextSession = {
-      data: normalizeSessionData(data),
-      expiresAt: Date.now() + SESSION_TTL_MS,
+    req.sessionId = session ? sessionId : null;
+    req.session = session;
+    req.getPublicSession = () => getPublicSession(req.session);
+    req.setServerSession = async (data) => {
+      // Reutiliza la sesión si existe; si no, crea un id criptográficamente aleatorio.
+      const nextSessionId = req.sessionId || createSessionId();
+      const nextSession = await writeSession(nextSessionId, data);
+
+      req.sessionId = nextSessionId;
+      req.session = nextSession;
+      setSessionCookie(res, nextSessionId);
+
+      return getPublicSession(nextSession);
+    };
+    req.patchServerSession = (data) =>
+      // Actualiza una parte de la sesión sin borrar el resto de datos públicos.
+      req.setServerSession({
+        ...getPublicSession(req.session),
+        ...data,
+      });
+    req.clearServerSession = async () => {
+      if (req.sessionId) {
+        const collection = await getSessionsCollection();
+
+        await collection.deleteOne({ _id: req.sessionId });
+      }
+
+      req.sessionId = null;
+      req.session = null;
+      clearSessionCookie(res);
     };
 
-    sessionsById.set(nextSessionId, nextSession);
-    req.sessionId = nextSessionId;
-    req.session = nextSession;
-    setSessionCookie(res, nextSessionId);
-
-    return getPublicSession(nextSession);
-  };
-  req.patchServerSession = (data) =>
-    // Actualiza una parte de la sesión sin borrar el resto de datos públicos.
-    req.setServerSession({
-      ...getPublicSession(req.session),
-      ...data,
-    });
-  req.clearServerSession = () => {
-    if (req.sessionId) {
-      sessionsById.delete(req.sessionId);
-    }
-
-    req.sessionId = null;
-    req.session = null;
-    clearSessionCookie(res);
-  };
-
-  next();
+    next();
+  } catch (error) {
+    next(error);
+  }
 }
 
 export function startSessionCleanup() {
-  const interval = setInterval(() => {
-    const now = Date.now();
-
-    for (const [sessionId, session] of sessionsById.entries()) {
-      if (session.expiresAt <= now) {
-        sessionsById.delete(sessionId);
-      }
-    }
-  }, SESSION_TTL_MS);
-
-  interval.unref?.();
+  // La limpieza real la hace Mongo con el índice TTL; se conserva la API del server.
 }

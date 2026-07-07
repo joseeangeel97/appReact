@@ -45,6 +45,7 @@ export default function Initiated() {
       const response = await fetch('/api/initiated', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           alias,
           phrase,
@@ -64,8 +65,8 @@ export default function Initiated() {
 
       replaceSession(data.session);
       setStatus('success');
-      // Si el acceso es correcto, entra directamente a la página de eventos.
-      navigate('/page-event');
+      // Si el acceso es correcto, vuelve al inicio con la sesión ya activa.
+      navigate('/');
     } catch {
       setError('Error de conexión, intenta nuevamente');
       setStatus('idle');

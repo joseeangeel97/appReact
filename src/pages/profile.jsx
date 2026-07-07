@@ -141,6 +141,7 @@ export default function Profile() {
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({
           alias,
           phrase,
@@ -163,11 +164,11 @@ export default function Profile() {
       replaceSession(data.session);
       setSaveStatus('success');
       setSuccessMessage(
-        'Perfil creado correctamente. Redirigiendo a eventos...',
+        'Perfil creado correctamente. Redirigiendo al inicio...',
       );
-      // Deja ver el mensaje de éxito antes de entrar a eventos.
+      // Deja ver el mensaje de éxito antes de volver al inicio.
       redirectTimeoutRef.current = setTimeout(() => {
-        navigate('/page-event');
+        navigate('/');
       }, 1200);
     } catch {
       setError('Error de conexión, intenta nuevamente');

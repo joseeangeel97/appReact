@@ -8,15 +8,37 @@ import pageBackground from '../assets/fondos/bg3.png';
 import styles from './ProfileSummary.module.css';
 
 function AccessDetail({ label, value }) {
-  if (!value) {
-    return null;
-  }
-
   return (
     <SpotlightCard className={styles.accessDetail}>
       <span>{label}</span>
-      <strong>{value}</strong>
+      <strong>{value || 'Pendiente de asignar'}</strong>
     </SpotlightCard>
+  );
+}
+
+function getEventAccessKey(event) {
+  return (
+    event.accessKey ||
+    event.accessCode ||
+    event.access_code ||
+    event.codigoAcceso ||
+    event.codigo_acceso ||
+    event.claveAcceso ||
+    event.clave_acceso ||
+    event.codigo ||
+    event.clave
+  );
+}
+
+function getEventInitialPassword(event) {
+  return (
+    event.initialPassword ||
+    event.initial_password ||
+    event.passwordInicial ||
+    event.password_inicial ||
+    event.claveInicial ||
+    event.clave_inicial ||
+    event.password
   );
 }
 
@@ -77,26 +99,30 @@ export default function ProfileSummary() {
               {attendingEvents.map((event) => (
                 <article
                   key={event.id || event.title}
-                  className={styles.eventSummaryCard}
+                  className={`${styles.eventSummaryCard} ${
+                    !event.image ? styles.eventSummaryCardNoImage : ''
+                  }`}
                 >
                   {event.image && <img src={event.image} alt={event.title} />}
-                  <div>
-                    <span>
-                      Nivel {event.level?.order || '-'} ·{' '}
-                      {event.level?.name || 'Sin nivel'}
-                    </span>
-                    <h3>{event.title}</h3>
-                    <p>{event.type}</p>
-                    <p>{event.date}</p>
-                    <p>{event.location}</p>
+                  <div className={styles.eventSummaryContent}>
+                    <div className={styles.eventSummaryMeta}>
+                      <span>
+                        Nivel {event.level?.order || '-'} ·{' '}
+                        {event.level?.name || 'Sin nivel'}
+                      </span>
+                      <h3>{event.title}</h3>
+                      <p>{event.type}</p>
+                      <p>{event.date}</p>
+                      <p>{event.location}</p>
+                    </div>
                     <div className={styles.eventAccessDetails}>
                       <AccessDetail
                         label='Código de acceso'
-                        value={event.accessKey}
+                        value={getEventAccessKey(event)}
                       />
                       <AccessDetail
                         label='Password inicial'
-                        value={event.initialPassword}
+                        value={getEventInitialPassword(event)}
                       />
                       <AccessDetail label='Estado' value={event.status} />
                     </div>

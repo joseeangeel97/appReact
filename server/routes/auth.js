@@ -32,7 +32,7 @@ export function registerAuthRoutes(app) {
           .json({ ok: false, message: 'Santo o seña incorrecta' });
       }
 
-      const session = req.setServerSession({
+      const session = await req.setServerSession({
         accessGranted: true,
         profile: null,
         attendingEvents: [],

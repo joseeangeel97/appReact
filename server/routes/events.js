@@ -26,6 +26,40 @@ function getFirstValue(document, fieldNames) {
   return '';
 }
 
+function getNestedValue(document, fieldPath) {
+  return fieldPath.split('.').reduce((value, fieldName) => {
+    if (!value || typeof value !== 'object') {
+      return undefined;
+    }
+
+    return value[fieldName];
+  }, document);
+}
+
+function getFirstNestedValue(document, fieldPaths) {
+  for (const fieldPath of fieldPaths) {
+    const value = getNestedValue(document, fieldPath);
+
+    if (value === undefined || value === null) {
+      continue;
+    }
+
+    if (typeof value === 'object') {
+      if (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0) {
+        return value;
+      }
+
+      continue;
+    }
+
+    if (String(value).trim() !== '') {
+      return value;
+    }
+  }
+
+  return '';
+}
+
 function formatEventDate(value) {
   if (!value) {
     return '';
@@ -118,19 +152,58 @@ export function normalizeEvent(document) {
       ]),
     ).trim(),
     accessKey: String(
-      getFirstValue(document, [
+      getFirstNestedValue(document, [
         'accessKey',
+        'accessCode',
+        'access_code',
+        'codigo',
         'claveAcceso',
+        'clave_acceso',
         'claveDeAcceso',
         'codigoAcceso',
+        'codigo_acceso',
+        'codigoDeAcceso',
+        'códigoAcceso',
+        'código_acceso',
+        'códigoDeAcceso',
+        'key',
+        'clave',
+        'access.key',
+        'access.code',
+        'access.codigo',
+        'access.clave',
+        'acceso.key',
+        'acceso.codigo',
+        'acceso.clave',
+        'credentials.accessKey',
+        'credentials.accessCode',
+        'credenciales.codigo',
+        'credenciales.clave',
       ]),
     ).trim(),
     initialPassword: String(
-      getFirstValue(document, [
+      getFirstNestedValue(document, [
         'initialPassword',
+        'initial_password',
+        'initialPass',
         'passwordInicial',
+        'password_inicial',
         'password',
         'claveInicial',
+        'clave_inicial',
+        'passInicial',
+        'contrasenaInicial',
+        'contraseñaInicial',
+        'access.initialPassword',
+        'access.password',
+        'access.initialPass',
+        'acceso.password',
+        'acceso.passwordInicial',
+        'acceso.claveInicial',
+        'credentials.initialPassword',
+        'credentials.password',
+        'credenciales.password',
+        'credenciales.claveInicial',
       ]),
     ).trim(),
     status: String(getFirstValue(document, ['status', 'estado'])).trim(),

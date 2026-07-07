@@ -224,7 +224,7 @@ export function registerProfileRoutes(app) {
             alias,
             number,
           });
-          const session = req.setServerSession({
+          const session = await req.setServerSession({
             accessGranted: true,
             profile: publicProfile,
             attendingEvents: [],
@@ -324,7 +324,7 @@ export function registerProfileRoutes(app) {
         number,
         image: selectedImage,
       };
-      const session = req.setServerSession({
+      const session = await req.setServerSession({
         accessGranted: true,
         profile: publicProfile,
         attendingEvents: [],

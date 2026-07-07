@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   emptySession,
@@ -13,20 +13,26 @@ export default function SessionProvider({ children, initialSession }) {
   const [session, setSession] = useState(() =>
     normalizeSession(initialSession || readBrowserSession()),
   );
+  const sessionVersionRef = useRef(0);
 
   const replaceSession = useCallback((nextSession) => {
+    sessionVersionRef.current += 1;
     setSession(normalizeSession(nextSession));
   }, []);
 
   const refreshSession = useCallback(async () => {
+    const requestVersion = sessionVersionRef.current;
     const nextSession = await readSessionFromServer();
 
-    setSession(nextSession);
+    if (requestVersion === sessionVersionRef.current) {
+      setSession(nextSession);
+    }
 
     return nextSession;
   }, []);
 
   const clearSession = useCallback(async () => {
+    sessionVersionRef.current += 1;
     const response = await fetch('/api/session', {
       method: 'DELETE',
       credentials: 'same-origin',
@@ -40,6 +46,7 @@ export default function SessionProvider({ children, initialSession }) {
   }, []);
 
   const saveAttendingEvent = useCallback(async (event) => {
+    sessionVersionRef.current += 1;
     // La reserva se guarda en la sesión del servidor, no en almacenamiento local.
     const response = await fetch('/api/session/events', {
       method: 'POST',
@@ -63,17 +70,18 @@ export default function SessionProvider({ children, initialSession }) {
 
   useEffect(() => {
     let isMounted = true;
+    const requestVersion = sessionVersionRef.current;
 
     async function loadSession() {
       try {
         // Revalida al hidratar por si la cookie expiró o cambió tras el SSR.
         const nextSession = await readSessionFromServer();
 
-        if (isMounted) {
+        if (isMounted && requestVersion === sessionVersionRef.current) {
           setSession(nextSession);
         }
       } catch {
-        if (isMounted) {
+        if (isMounted && requestVersion === sessionVersionRef.current) {
           setSession(emptySession);
         }
       }

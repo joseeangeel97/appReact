@@ -76,6 +76,14 @@ async function createServer() {
   registerEventRoutes(app);
   registerProfileRoutes(app);
 
+  // Ninguna ruta /api debe caer al SSR; si no existe, responde como API.
+  app.use('/api', (req, res) =>
+    res.status(404).json({
+      ok: false,
+      message: 'Ruta de API no encontrada',
+    }),
+  );
+
   // En desarrollo usa Vite como middleware; en producción sirve dist/.
   await configureSsr(app, httpServer, {
     rootDir: __dirname,

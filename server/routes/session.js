@@ -16,18 +16,53 @@ async function getTrustedEventById(eventId) {
   return document ? normalizeEvent(document) : null;
 }
 
-export function registerSessionRoutes(app) {
-  // Fuente única para que React conozca la sesión pública asociada a la cookie.
-  app.get('/api/session', (req, res) =>
-    res.status(200).json({
-      ok: true,
-      session: req.getPublicSession(),
+async function refreshTrustedAttendingEvents(session) {
+  if (!session.profile || session.attendingEvents.length === 0) {
+    return session;
+  }
+
+  const refreshedEvents = await Promise.all(
+    session.attendingEvents.map(async (event) => {
+      const trustedEvent = await getTrustedEventById(String(event.id || ''));
+
+      return trustedEvent || event;
     }),
   );
 
-  app.delete('/api/session', (req, res) => {
+  return {
+    ...session,
+    attendingEvents: refreshedEvents,
+  };
+}
+
+export function registerSessionRoutes(app) {
+  // Fuente única para que React conozca la sesión pública asociada a la cookie.
+  app.get('/api/session', async (req, res) => {
+    try {
+      const currentSession = req.getPublicSession();
+      const session = await refreshTrustedAttendingEvents(currentSession);
+
+      if (session !== currentSession) {
+        await req.patchServerSession({ attendingEvents: session.attendingEvents });
+      }
+
+      return res.status(200).json({
+        ok: true,
+        session,
+      });
+    } catch (error) {
+      console.error('MongoDB session refresh error:', error);
+
+      return res.status(200).json({
+        ok: true,
+        session: req.getPublicSession(),
+      });
+    }
+  });
+
+  app.delete('/api/session', async (req, res) => {
     // Elimina la sesión del store y pide al navegador borrar la cookie HttpOnly.
-    req.clearServerSession();
+    await req.clearServerSession();
 
     return res.status(200).json({
       ok: true,
@@ -64,7 +99,7 @@ export function registerSessionRoutes(app) {
       const attendingEvents = eventExists
         ? currentSession.attendingEvents
         : [...currentSession.attendingEvents, event].slice(0, 50);
-      const session = req.patchServerSession({ attendingEvents });
+      const session = await req.patchServerSession({ attendingEvents });
 
       return res.status(200).json({
         ok: true,
