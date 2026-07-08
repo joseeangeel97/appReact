@@ -5,6 +5,7 @@ import { getMongoDb } from './db.js';
 
 const SESSION_COOKIE_NAME = 'minihub_session';
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+const SESSION_RENEW_AFTER_MS = SESSION_TTL_MS / 2;
 
 let sessionsCollectionPromise;
 
@@ -35,6 +36,20 @@ function parseCookies(cookieHeader = '') {
 
 function createSessionId() {
   return randomBytes(32).toString('base64url');
+}
+
+function shouldReadSession(req) {
+  const path = req.path || '';
+
+  if (path.startsWith('/api') || path === '/login') {
+    return true;
+  }
+
+  if (path.startsWith('/@vite') || path.startsWith('/src/')) {
+    return false;
+  }
+
+  return !/\.[a-z0-9]+$/i.test(path);
 }
 
 function normalizeSessionData(data = {}) {
@@ -87,7 +102,10 @@ async function getSessionsCollection() {
       await collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
       return collection;
-    })();
+    })().catch((error) => {
+      sessionsCollectionPromise = null;
+      throw error;
+    });
   }
 
   return sessionsCollectionPromise;
@@ -106,10 +124,17 @@ async function readSession(sessionId) {
     return null;
   }
 
-  const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
+  const now = Date.now();
+  const expiresAtTime = session.expiresAt.getTime();
+  const shouldRenew = expiresAtTime - now < SESSION_RENEW_AFTER_MS;
+  const expiresAt = shouldRenew
+    ? new Date(now + SESSION_TTL_MS)
+    : session.expiresAt;
 
-  // Sesión deslizante: cada request válida renueva la expiración en Mongo.
-  await collection.updateOne({ _id: sessionId }, { $set: { expiresAt } });
+  if (shouldRenew) {
+    // Sesión deslizante sin escribir en Mongo en cada request.
+    await collection.updateOne({ _id: sessionId }, { $set: { expiresAt } });
+  }
 
   return {
     ...session,
@@ -146,9 +171,25 @@ export function getPublicSession(session) {
 
 export async function sessionMiddleware(req, res, next) {
   try {
+    if (!shouldReadSession(req)) {
+      req.sessionId = null;
+      req.session = null;
+      req.getPublicSession = () => getPublicSession(null);
+      return next();
+    }
+
     const cookies = parseCookies(req.headers.cookie);
     const sessionId = cookies[SESSION_COOKIE_NAME];
-    const session = sessionId ? await readSession(sessionId) : null;
+    let session = null;
+
+    if (sessionId) {
+      try {
+        session = await readSession(sessionId);
+      } catch (error) {
+        console.warn('MongoDB session read error:', error.message);
+        clearSessionCookie(res);
+      }
+    }
 
     req.sessionId = session ? sessionId : null;
     req.session = session;

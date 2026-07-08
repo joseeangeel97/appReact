@@ -37,6 +37,8 @@
       );
       border: 1px solid rgba(255, 215, 0, 0.26);
       background:
+        linear-gradient(118deg, transparent 0 18%, rgba(225, 249, 255, 0.12) 19%, transparent 28% 100%),
+        linear-gradient(166deg, transparent 0 56%, rgba(255, 119, 36, 0.1) 57%, transparent 66% 100%),
         radial-gradient(
           circle at 8% 14%,
           rgba(127, 255, 212, 0.22),
@@ -77,18 +79,25 @@
       &::after {
         content: '';
         position: absolute;
-        left: clamp(1rem, 3vw, 2.1rem);
-        right: clamp(1rem, 3vw, 2.1rem);
-        bottom: 0.9rem;
-        height: 2px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(127, 255, 212, 0.64),
-          rgba(255, 215, 0, 0.54),
-          transparent
-        );
-        box-shadow: 0 0 18px rgba(127, 255, 212, 0.32);
+        inset: 0;
+        background:
+          radial-gradient(circle at 14% 22%, rgba(255, 255, 255, 0.24) 0 1px, transparent 2px),
+          radial-gradient(circle at 78% 24%, rgba(255, 235, 138, 0.2) 0 1px, transparent 2px),
+          radial-gradient(circle at 66% 72%, rgba(127, 255, 212, 0.18) 0 1px, transparent 2px),
+          linear-gradient(
+            90deg,
+            transparent 12%,
+            rgba(127, 255, 212, 0.64) 45%,
+            rgba(255, 215, 0, 0.54) 54%,
+            transparent 88%
+          ) left calc(100% - 0.9rem) / 100% 2px no-repeat;
+        background-size:
+          9rem 7rem,
+          13rem 9rem,
+          11rem 8rem,
+          100% 2px;
+        box-shadow: inset 0 0 34px rgba(255, 126, 38, 0.05);
+        pointer-events: none;
       }
     }
 
@@ -128,6 +137,8 @@
     border: 1px solid rgba(255, 215, 0, 0.32);
     border-radius: 1.2rem;
     background:
+      linear-gradient(128deg, transparent 0 28%, rgba(209, 248, 255, 0.1) 29%, transparent 38% 100%),
+      linear-gradient(162deg, transparent 0 56%, rgba(255, 126, 38, 0.1) 57%, transparent 72% 100%),
       linear-gradient(135deg, rgba(255, 215, 0, 0.12), transparent 52%),
       rgba(3, 7, 14, 0.78);
     color: #ffeb8a;
@@ -172,6 +183,77 @@
     line-height: 1.55;
   }
 
+  .reservationNotice {
+    position: fixed;
+    right: clamp(1rem, 3vw, 2rem);
+    bottom: clamp(1rem, 3vw, 2rem);
+    z-index: 120;
+    width: min(26rem, calc(100vw - 2rem));
+    padding: 1rem 1.15rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 215, 0, 0.34);
+    border-radius: 0.65rem;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(127, 255, 212, 0.18), transparent 10rem),
+      linear-gradient(135deg, rgba(255, 215, 0, 0.11), transparent 56%),
+      rgba(2, 8, 16, 0.94);
+    color: rgba(248, 251, 255, 0.92);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 18px 42px rgba(0, 0, 0, 0.42),
+      0 0 30px rgba(127, 255, 212, 0.14);
+    backdrop-filter: blur(12px);
+    animation: reservationNoticeIn 0.34s ease both;
+
+    &[data-type='error'] {
+      border-color: rgba(255, 132, 74, 0.48);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 18px 42px rgba(0, 0, 0, 0.42),
+        0 0 30px rgba(255, 101, 54, 0.18);
+    }
+
+    &[data-type='reserved'] {
+      border-color: rgba(255, 235, 138, 0.42);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 18px 42px rgba(0, 0, 0, 0.38),
+        0 0 26px rgba(255, 215, 0, 0.12);
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0.24rem;
+      background: linear-gradient(
+        180deg,
+        rgba(127, 255, 212, 0.1),
+        rgba(255, 215, 0, 0.86),
+        rgba(127, 255, 212, 0.14)
+      );
+      box-shadow: 0 0 18px rgba(255, 215, 0, 0.34);
+    }
+
+    span {
+      display: block;
+      color: #fff7bf;
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.08rem;
+      text-transform: uppercase;
+    }
+
+    p {
+      margin: 0.35rem 0 0;
+      color: rgba(232, 247, 243, 0.86);
+      line-height: 1.55;
+    }
+  }
+
   .levelInfoCard {
     position: relative;
     width: min(100%, 1440px);
@@ -181,6 +263,8 @@
     border: 1px solid rgba(255, 215, 0, 0.22);
     border-radius: 1.2rem;
     background:
+      linear-gradient(118deg, transparent 0 14%, rgba(226, 250, 255, 0.1) 15%, transparent 24% 100%),
+      linear-gradient(166deg, transparent 0 62%, rgba(255, 118, 42, 0.09) 63%, transparent 72% 100%),
       radial-gradient(
         circle at 12% 20%,
         rgba(127, 255, 212, 0.16),
@@ -212,9 +296,373 @@
       pointer-events: none;
     }
 
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 9% 18%, rgba(255, 255, 255, 0.2) 0 1px, transparent 2px),
+        radial-gradient(circle at 92% 22%, rgba(255, 235, 138, 0.18) 0 1px, transparent 2px),
+        radial-gradient(circle at 74% 82%, rgba(127, 255, 212, 0.14) 0 1px, transparent 2px),
+        linear-gradient(90deg, transparent, rgba(127, 255, 212, 0.22), transparent) 50% 0.9rem / 48% 1px no-repeat,
+        linear-gradient(90deg, transparent, rgba(255, 151, 42, 0.2), transparent) 50% calc(100% - 0.9rem) / 42% 1px no-repeat;
+      background-size:
+        11rem 9rem,
+        14rem 10rem,
+        12rem 9rem,
+        48% 1px,
+        42% 1px;
+      opacity: 0.82;
+      pointer-events: none;
+    }
+
     p,
-    strong {
+    strong,
+    .levelInfoIntro,
+    .levelInfoTrigger,
+    .levelInfoDetails,
+    .levelInfoItem {
       position: relative;
+    }
+
+    .levelInfoIntro {
+      position: relative;
+      display: grid;
+      justify-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0 1.75rem;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: center;
+      cursor: pointer;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 0.15rem;
+        width: 1.9rem;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 215, 0, 0.34),
+          rgba(127, 255, 212, 0.28),
+          transparent
+        );
+        box-shadow: 0 0 10px rgba(127, 255, 212, 0.12);
+        opacity: 0.55;
+        transform: translateY(-50%) rotate(-18deg);
+        transition:
+          opacity 0.24s ease,
+          transform 0.32s ease;
+      }
+
+      &:hover::after,
+      &:focus-visible::after {
+        opacity: 0.9;
+      }
+
+      &[aria-expanded='true']::after {
+        opacity: 0.9;
+        transform: translateY(-50%) rotate(18deg);
+      }
+
+      strong {
+        display: inline-block;
+        max-width: 58rem;
+        color: #fff7bf;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(1.15rem, 1.9vw, 1.65rem);
+        font-weight: 700;
+        line-height: 1.45;
+        text-shadow:
+          0 2px 12px rgba(0, 0, 0, 0.58),
+          0 0 18px rgba(127, 255, 212, 0.24);
+      }
+
+      span {
+        max-width: 54rem;
+        color: rgba(232, 247, 243, 0.84);
+        font-size: clamp(0.88rem, 1.2vw, 1rem);
+        line-height: 1.65;
+      }
+    }
+
+    .levelInfoDetails {
+      display: grid;
+      grid-template-rows: 0fr;
+      gap: 0.75rem;
+      opacity: 0;
+      transition:
+        grid-template-rows 0.42s ease,
+        opacity 0.24s ease,
+        margin-top 0.42s ease;
+
+      &[data-open='true'] {
+        grid-template-rows: 1fr;
+        margin-top: 1.35rem;
+        opacity: 1;
+      }
+    }
+
+    .levelInfoDetailsInner {
+      display: grid;
+      gap: 0.75rem;
+      min-height: 0;
+      overflow: hidden;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(127, 255, 212, 0.18);
+    }
+
+    .levelInfoItem {
+      border: 1px solid rgba(255, 215, 0, 0.18);
+      border-radius: 0.85rem;
+      background:
+        linear-gradient(116deg, transparent 0 18%, rgba(210, 246, 255, 0.08) 19%, transparent 30% 100%),
+        linear-gradient(150deg, transparent 0 56%, rgba(255, 130, 39, 0.08) 57%, transparent 70% 100%),
+        linear-gradient(135deg, rgba(127, 255, 212, 0.08), transparent 58%),
+        rgba(1, 5, 12, 0.42);
+      overflow: hidden;
+    }
+
+    .levelInfoTrigger {
+      position: relative;
+      display: grid;
+      width: 100%;
+      min-height: 3.2rem;
+      padding: 0.85rem 2.25rem 0.85rem 1rem;
+      border: 0;
+      background: transparent;
+      color: #fff7bf;
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+      font-weight: 700;
+      letter-spacing: 0.08rem;
+      text-align: center;
+      text-transform: uppercase;
+      cursor: pointer;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 0.95rem;
+        width: 1rem;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 215, 0, 0.34),
+          rgba(127, 255, 212, 0.22),
+          transparent
+        );
+        opacity: 0.5;
+        transform: translateY(-50%) rotate(-18deg);
+        transition:
+          opacity 0.24s ease,
+          transform 0.32s ease;
+      }
+
+      &:hover::after,
+      &:focus-visible::after {
+        opacity: 0.85;
+      }
+
+      &[aria-expanded='true']::after {
+        opacity: 0.85;
+        transform: translateY(-50%) rotate(18deg);
+      }
+    }
+
+    .levelInfoPanel {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition:
+        grid-template-rows 0.36s ease,
+        opacity 0.22s ease;
+
+      &[data-open='true'] {
+        grid-template-rows: 1fr;
+        opacity: 1;
+      }
+
+      p {
+        min-height: 0;
+        margin: 0;
+        padding: 0 1rem 1rem;
+        overflow: hidden;
+        color: rgba(232, 247, 243, 0.88);
+        line-height: 1.7;
+        text-align: center;
+      }
+    }
+
+    .levelInfoLevelGrid {
+      display: grid;
+      gap: 1rem;
+      min-height: 0;
+      overflow: hidden;
+      padding: 0 1rem 1rem;
+    }
+
+    .levelInfoLevel {
+      display: grid;
+      gap: 0.75rem;
+      padding: clamp(1rem, 2vw, 1.25rem);
+      border: 1px solid rgba(127, 255, 212, 0.16);
+      border-radius: 0.75rem;
+      background:
+        linear-gradient(128deg, transparent 0 20%, rgba(224, 250, 255, 0.07) 21%, transparent 31% 100%),
+        linear-gradient(160deg, transparent 0 58%, rgba(255, 125, 37, 0.07) 59%, transparent 72% 100%),
+        radial-gradient(circle at 10% 10%, rgba(127, 255, 212, 0.08), transparent 16rem),
+        rgba(3, 8, 16, 0.46);
+
+      h4 {
+        margin: 0;
+        color: #fff7bf;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(1rem, 1.6vw, 1.25rem);
+        line-height: 1.35;
+        text-align: center;
+      }
+
+      p {
+        padding: 0;
+        text-align: left;
+      }
+
+      dl {
+        display: grid;
+        gap: 0.65rem;
+        margin: 0.35rem 0 0;
+      }
+
+      div {
+        display: grid;
+        gap: 0.25rem;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid rgba(255, 215, 0, 0.12);
+        border-radius: 0.55rem;
+        background: rgba(1, 5, 12, 0.38);
+      }
+
+      dt {
+        color: rgba(255, 235, 138, 0.78);
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0.08rem;
+        text-transform: uppercase;
+      }
+
+      dd {
+        margin: 0;
+        color: rgba(232, 247, 243, 0.88);
+        line-height: 1.6;
+      }
+    }
+
+    .levelInfoLocationWrap {
+      display: grid;
+      gap: 1rem;
+      min-height: 0;
+      overflow: hidden;
+      padding: 0 1rem 1rem;
+    }
+
+    .levelInfoLocationIntro,
+    .levelInfoLocation,
+    .levelInfoSignal {
+      display: grid;
+      gap: 0.75rem;
+      padding: clamp(1rem, 2vw, 1.25rem);
+      border: 1px solid rgba(127, 255, 212, 0.16);
+      border-radius: 0.75rem;
+      background:
+        linear-gradient(128deg, transparent 0 18%, rgba(220, 249, 255, 0.07) 19%, transparent 30% 100%),
+        linear-gradient(162deg, transparent 0 60%, rgba(255, 120, 36, 0.07) 61%, transparent 74% 100%),
+        radial-gradient(circle at 12% 0%, rgba(255, 215, 0, 0.08), transparent 14rem),
+        rgba(3, 8, 16, 0.46);
+
+      h4 {
+        margin: 0;
+        color: #fff7bf;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(1rem, 1.5vw, 1.18rem);
+        line-height: 1.35;
+        text-align: center;
+      }
+
+      p {
+        padding: 0;
+        text-align: left;
+      }
+
+      dl {
+        display: grid;
+        gap: 0.65rem;
+        margin: 0.2rem 0 0;
+      }
+
+      div {
+        display: grid;
+        gap: 0.25rem;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid rgba(255, 215, 0, 0.12);
+        border-radius: 0.55rem;
+        background: rgba(1, 5, 12, 0.38);
+      }
+
+      dt {
+        color: rgba(255, 235, 138, 0.78);
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0.08rem;
+        text-transform: uppercase;
+      }
+
+      dd {
+        margin: 0;
+        color: rgba(232, 247, 243, 0.88);
+        line-height: 1.6;
+      }
+    }
+
+    .levelInfoLocationIntro {
+      border-color: rgba(255, 215, 0, 0.2);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(127, 255, 212, 0.12), transparent 16rem),
+        linear-gradient(135deg, rgba(255, 215, 0, 0.08), transparent 58%),
+        rgba(3, 8, 16, 0.5);
+
+      p {
+        text-align: center;
+      }
+    }
+
+    .levelInfoLocationGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+      gap: 1rem;
+    }
+
+    .levelInfoSignal {
+      border-color: rgba(255, 215, 0, 0.14);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(127, 255, 212, 0.08), transparent 13rem),
+        linear-gradient(160deg, rgba(255, 215, 0, 0.05), transparent 64%),
+        rgba(1, 5, 12, 0.5);
+
+      h4 {
+        color: rgba(255, 247, 191, 0.9);
+      }
+
+      dt {
+        color: rgba(127, 255, 212, 0.78);
+      }
     }
 
     p {
@@ -223,16 +671,6 @@
       line-height: 1.65;
     }
 
-    strong {
-      display: inline-block;
-      margin-top: 0.65rem;
-      color: #fff7bf;
-      font-size: clamp(1.05rem, 1.6vw, 1.35rem);
-      line-height: 1.45;
-      text-shadow:
-        0 2px 12px rgba(0, 0, 0, 0.58),
-        0 0 18px rgba(127, 255, 212, 0.24);
-    }
   }
 
   /* Lista vertical de eventos, casi a ancho completo. */
@@ -244,12 +682,14 @@
   }
 
   .levelSection {
+    position: relative;
     display: grid;
     gap: clamp(1.25rem, 3vw, 2rem);
   }
 
   .levelHeader {
     position: relative;
+    z-index: 20;
     width: 100%;
     box-sizing: border-box;
     display: grid;
@@ -257,10 +697,12 @@
     align-items: center;
     gap: clamp(1rem, 3vw, 2rem);
     padding: clamp(1.1rem, 2.4vw, 1.75rem);
-    overflow: hidden;
+    overflow: visible;
     border: 1px solid rgba(255, 215, 0, 0.24);
     border-radius: 1rem;
     background:
+      linear-gradient(118deg, transparent 0 20%, rgba(220, 248, 255, 0.1) 21%, transparent 31% 100%),
+      linear-gradient(164deg, transparent 0 60%, rgba(255, 120, 36, 0.09) 61%, transparent 74% 100%),
       radial-gradient(
         circle at 10% 18%,
         rgba(127, 255, 212, 0.18),
@@ -288,9 +730,31 @@
       pointer-events: none;
     }
 
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 28%, rgba(255, 255, 255, 0.22) 0 1px, transparent 2px),
+        radial-gradient(circle at 72% 22%, rgba(255, 235, 138, 0.18) 0 1px, transparent 2px),
+        radial-gradient(circle at 84% 78%, rgba(127, 255, 212, 0.14) 0 1px, transparent 2px),
+        linear-gradient(90deg, transparent, rgba(127, 255, 212, 0.22), transparent) 50% 0.8rem / 38% 1px no-repeat,
+        linear-gradient(90deg, transparent, rgba(255, 150, 38, 0.18), transparent) 50% calc(100% - 0.8rem) / 34% 1px no-repeat;
+      background-size:
+        10rem 8rem,
+        13rem 9rem,
+        12rem 8rem,
+        38% 1px,
+        34% 1px;
+      opacity: 0.82;
+      pointer-events: none;
+    }
+
     span,
     h2,
-    p {
+    p,
+    .levelTitleGroup,
+    .levelTooltipWrapper {
       position: relative;
     }
 
@@ -303,6 +767,8 @@
       border: 1px solid rgba(127, 255, 212, 0.32);
       border-radius: 0.75rem;
       background:
+        linear-gradient(145deg, rgba(226, 250, 255, 0.12), transparent 42%),
+        linear-gradient(35deg, rgba(255, 128, 40, 0.08), transparent 50%),
         linear-gradient(135deg, rgba(127, 255, 212, 0.14), transparent 58%),
         rgba(3, 8, 16, 0.68);
       color: rgba(255, 235, 138, 0.78);
@@ -335,6 +801,80 @@
       }
     }
 
+    .levelTitleGroup {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      gap: 0.8rem;
+    }
+
+    .levelTooltipWrapper {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+      z-index: 30;
+      min-width: 0;
+      min-height: auto;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .levelTooltipTrigger {
+      display: inline-grid;
+      place-items: center;
+      width: 2rem;
+      height: 2rem;
+      padding: 0;
+      border: 1px solid rgba(255, 215, 0, 0.38);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(127, 255, 212, 0.22), transparent 70%),
+        rgba(3, 8, 16, 0.84);
+      color: #fff7bf;
+      font-weight: 900;
+      cursor: help;
+      box-shadow: 0 0 18px rgba(127, 255, 212, 0.14);
+    }
+
+    .levelTooltipBubble {
+      display: block;
+      position: absolute;
+      z-index: 100;
+      top: calc(100% + 0.75rem);
+      left: 50%;
+      min-width: 0;
+      min-height: auto;
+      width: min(18rem, calc(100vw - 3rem));
+      padding: 0.85rem 1rem;
+      border: 1px solid rgba(127, 255, 212, 0.36);
+      border-radius: 0.75rem;
+      background: rgba(2, 8, 16, 0.96);
+      color: rgba(248, 251, 255, 0.92);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.02rem;
+      line-height: 1.5;
+      text-transform: none;
+      text-align: left;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -0.25rem);
+      transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, 0.36),
+        0 0 24px rgba(127, 255, 212, 0.12);
+    }
+
+    .levelTooltipWrapper:hover .levelTooltipBubble,
+    .levelTooltipWrapper:focus-within .levelTooltipBubble {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
     p {
       margin: 0;
       color: rgba(232, 247, 243, 0.82);
@@ -344,6 +884,8 @@
   }
 
   .levelEvents {
+    position: relative;
+    z-index: 1;
     display: grid;
     gap: clamp(1rem, 2vw, 1.75rem);
   }
@@ -353,6 +895,8 @@
     border: 1px solid rgba(255, 215, 0, 0.22);
     border-radius: 1.2rem;
     background:
+      linear-gradient(118deg, transparent 0 18%, rgba(225, 249, 255, 0.09) 19%, transparent 30% 100%),
+      linear-gradient(166deg, transparent 0 58%, rgba(255, 126, 38, 0.08) 59%, transparent 72% 100%),
       radial-gradient(
         circle at 12% 20%,
         rgba(127, 255, 212, 0.14),
@@ -393,6 +937,13 @@
       box-sizing: border-box;
     }
 
+    .reservationNotice {
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      width: auto;
+    }
+
     .levelHeader {
       box-sizing: border-box;
       width: 100%;
@@ -402,5 +953,17 @@
         text-align: left;
       }
     }
+  }
+}
+
+@keyframes reservationNoticeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.8rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

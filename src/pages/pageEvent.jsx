@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import EventLevelSection from '../components/EventLevelSection';
+import EventAccessNotice from '../components/EventAccessNotice';
 import {
   useActiveProfile,
+  useAttendingEvents,
   useSessionActions,
 } from '../utils/sessionProfile';
 import pageBackground from '../assets/fondos/bg3.png';
@@ -66,14 +68,23 @@ function normalizeEventFromApi(event) {
   };
 }
 
+function getEventReservationKey(event) {
+  return String(event?.id || event?.title || '').trim().toLowerCase();
+}
+
 export default function PageEvent() {
   const [events, setEvents] = useState([]);
   const [eventsStatus, setEventsStatus] = useState('loading');
+  const [reservationNotice, setReservationNotice] = useState(null);
   const activeProfile = useActiveProfile();
+  const attendingEvents = useAttendingEvents();
   const { saveAttendingEvent } = useSessionActions();
   const profileImage = activeProfile?.image;
   const parallaxProfileImage = getParallaxProfileImage(profileImage);
   const eventGroups = groupEventsByLevel(events);
+  const reservedEventKeys = new Set(attendingEvents.map(getEventReservationKey));
+  const isEventReserved = (event) =>
+    reservedEventKeys.has(getEventReservationKey(event));
 
   useEffect(() => {
     let isMounted = true;
@@ -120,12 +131,41 @@ export default function PageEvent() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!reservationNotice) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setReservationNotice(null);
+    }, 5200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [reservationNotice]);
+
   const handleReserve = async (event) => {
+    if (isEventReserved(event)) {
+      setReservationNotice({
+        type: 'reserved',
+        title: 'Ya reservado',
+        message: `${event.title} ya se encuentra en tu agenda privada.`,
+      });
+      return;
+    }
+
     try {
       await saveAttendingEvent(event);
-      window.alert(`Reserva enviada para: ${event.title}`);
+      setReservationNotice({
+        type: 'success',
+        title: 'Reserva registrada',
+        message: `${event.title}: los pases se muestran temporalmente hasta confirmación. No implica acceso garantizado.`,
+      });
     } catch {
-      window.alert('Inicia sesión para reservar eventos');
+      setReservationNotice({
+        type: 'error',
+        title: 'Sesión necesaria',
+        message: 'Inicia sesión para reservar eventos y custodiar tus pases.',
+      });
     }
   };
 
@@ -164,12 +204,19 @@ export default function PageEvent() {
           )}
         </section>
 
-        <section className={styles.levelInfoCard}>
-          <p>Cada nivel revela una capa distinta de la experiencia.</p>
-          <p>Cada localización permanece velada hasta la confirmación del invitado.</p>
-          <p>Cada evento existe solo para quienes saben leer la señal.</p>
-          <strong>No se entra por curiosidad. Se entra por invitación.</strong>
-        </section>
+        {reservationNotice && (
+          <aside
+            className={styles.reservationNotice}
+            data-type={reservationNotice.type}
+            role='status'
+            aria-live='polite'
+          >
+            <span>{reservationNotice.title}</span>
+            <p>{reservationNotice.message}</p>
+          </aside>
+        )}
+
+        <EventAccessNotice styles={styles} />
 
         <section className={styles.eventsColumn}>
           {eventsStatus === 'loading' && (
@@ -195,6 +242,7 @@ export default function PageEvent() {
                 group={group}
                 parallaxImage={parallaxProfileImage}
                 onReserve={handleReserve}
+                isEventReserved={isEventReserved}
               />
             ))}
         </section>

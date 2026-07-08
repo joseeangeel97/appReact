@@ -17,6 +17,63 @@ import {
 let mongoDbPromise;
 let authCollectionPromise;
 
+function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function isRetryableMongoConnectionError(error) {
+  return (
+    error?.name === 'MongoServerSelectionError' ||
+    error?.name === 'MongoNetworkError' ||
+    error?.hasErrorLabel?.('RetryableError') ||
+    error?.hasErrorLabel?.('ResetPool') ||
+    error?.errorLabelSet?.has?.('RetryableError') ||
+    error?.errorLabelSet?.has?.('ResetPool') ||
+    error?.cause?.code === 'ERR_SSL_TLSV1_ALERT_INTERNAL_ERROR'
+  );
+}
+
+async function connectMongoClient() {
+  const maxAttempts = 4;
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const client = new MongoClient(mongoUri, {
+      connectTimeoutMS: 10000,
+      maxIdleTimeMS: 60000,
+      maxPoolSize: 10,
+      minPoolSize: 0,
+      retryReads: true,
+      retryWrites: true,
+      serverSelectionTimeoutMS: 10000,
+    });
+
+    try {
+      await client.connect();
+
+      return client;
+    } catch (error) {
+      lastError = error;
+      await client.close().catch(() => {});
+
+      if (!isRetryableMongoConnectionError(error) || attempt === maxAttempts) {
+        break;
+      }
+
+      const retryDelayMs = 350 * attempt;
+
+      console.warn(
+        `MongoDB connection attempt ${attempt} failed; retrying in ${retryDelayMs}ms`,
+      );
+      await wait(retryDelayMs);
+    }
+  }
+
+  throw lastError;
+}
+
 // Reutiliza una única promesa de conexión para evitar abrir varios clientes Mongo.
 export async function getMongoDb() {
   if (!mongoUri) {
@@ -25,11 +82,14 @@ export async function getMongoDb() {
 
   if (!mongoDbPromise) {
     mongoDbPromise = (async () => {
-      const client = new MongoClient(mongoUri);
-      await client.connect();
+      const client = await connectMongoClient();
 
       return dbName ? client.db(dbName) : client.db();
-    })();
+    })().catch((error) => {
+      mongoDbPromise = null;
+      authCollectionPromise = null;
+      throw error;
+    });
   }
 
   return mongoDbPromise;

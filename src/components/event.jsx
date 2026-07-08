@@ -4,6 +4,23 @@ import styles from './event.module.css';
 
 const getClassName = (...classNames) => classNames.filter(Boolean).join(' ');
 
+function splitEventTitle(title) {
+  const [titleLead, ...titleRest] = String(title).split(':');
+  const continuation = titleRest.join(':').trim();
+
+  if (!continuation) {
+    return {
+      lead: title,
+      continuation: '',
+    };
+  }
+
+  return {
+    lead: `${titleLead.trim()}:`,
+    continuation,
+  };
+}
+
 export default function Event({
   title,
   type,
@@ -14,7 +31,10 @@ export default function Event({
   image,
   onReserve,
   className,
+  reserved = false,
 }) {
+  const eventTitle = splitEventTitle(title);
+
   return (
     <SpotlightCard
       as='article'
@@ -25,7 +45,12 @@ export default function Event({
       </div>
       <div className={styles.eventContent}>
         <div className={styles.eventHeader}>
-          <h3 className={styles.eventTitle}>{title}</h3>
+          <h3 className={styles.eventTitle}>
+            <span>{eventTitle.lead}</span>
+            {eventTitle.continuation && (
+              <span>{eventTitle.continuation}</span>
+            )}
+          </h3>
           <span className={styles.eventType}>{type}</span>
         </div>
         <div className={styles.eventMeta}>
@@ -42,10 +67,14 @@ export default function Event({
         )}
         <Button
           type='button'
-          className={styles.reserveButton}
-          onClick={onReserve}
+          className={getClassName(
+            styles.reserveButton,
+            reserved && styles.reserveButtonReserved,
+          )}
+          onClick={reserved ? undefined : onReserve}
+          disabled={reserved}
         >
-          Reservar
+          {reserved ? 'Ya reservado' : 'Reservar'}
         </Button>
       </div>
     </SpotlightCard>

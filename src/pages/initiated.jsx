@@ -28,12 +28,7 @@ export default function Initiated() {
     setError('');
 
     // Validación rápida en cliente antes de consultar el backend.
-    if (
-      !alias.trim() ||
-      !phrase.trim() ||
-      !hiddenThought.trim() ||
-      !number
-    ) {
+    if (!alias.trim() || !phrase.trim() || !hiddenThought.trim() || !number) {
       setError('Todos los campos de acceso son obligatorios');
       return;
     }
@@ -82,7 +77,7 @@ export default function Initiated() {
         </section>
         <section className={styles.accessSection}>
           <article>
-            <h4>Entrada</h4>
+            <h4>SEÑAS</h4>
           </article>
 
           <form className={styles.accessForm} onSubmit={handleSubmit}>
@@ -133,7 +128,9 @@ export default function Initiated() {
                 {/* Permite revisar la frase sin enviar el formulario. */}
                 <Button
                   type='button'
-                  onClick={() => setShowHiddenThought((isVisible) => !isVisible)}
+                  onClick={() =>
+                    setShowHiddenThought((isVisible) => !isVisible)
+                  }
                   aria-label={
                     showHiddenThought
                       ? 'Ocultar frase contraseña'

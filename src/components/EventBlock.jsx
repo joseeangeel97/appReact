@@ -7,6 +7,7 @@ export default function EventBlock({
   parallaxImage,
   showParallax = false,
   onReserve,
+  reserved = false,
 }) {
   return (
     <div
@@ -23,6 +24,7 @@ export default function EventBlock({
         tags={event.tags}
         image={event.image}
         onReserve={() => onReserve(event)}
+        reserved={reserved}
       />
 
       {showParallax && (
