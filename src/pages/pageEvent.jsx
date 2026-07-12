@@ -12,6 +12,10 @@ import {
 import pageBackground from '../assets/fondos/bg3.png';
 import styles from './pageEvent.module.css';
 
+function getCssImageUrl(image) {
+  return `url(${JSON.stringify(String(image || ''))})`;
+}
+
 function getParallaxProfileImage(profileImage) {
   const imageSrc = profileImage?.originalSrc || profileImage?.src;
 
@@ -175,8 +179,8 @@ export default function PageEvent() {
       <main
         className={styles.pageEventMain}
         style={{
-          '--page-event-background': `url("${pageBackground}")`,
-          '--profile-parallax-image': `url("${parallaxProfileImage}")`,
+          '--page-event-background': getCssImageUrl(pageBackground),
+          '--profile-parallax-image': getCssImageUrl(parallaxProfileImage),
         }}
       >
         <section className={styles.pageEventHeader}>

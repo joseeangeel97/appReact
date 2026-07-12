@@ -1,5 +1,5 @@
 import { getCloudinaryImageUrl } from '../cloudinary.js';
-import { getEventsCollection } from '../db.js';
+import { getEventImagesCollection, getEventsCollection } from '../db.js';
 
 function getFirstValue(document, fieldNames) {
   // Mongo puede guardar los mismos datos con nombres ES/EN; usamos el primero válido.
@@ -60,6 +60,147 @@ function getFirstNestedValue(document, fieldPaths) {
   return '';
 }
 
+function normalizeLookupKey(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+function readImageSource(document) {
+  return String(
+    getFirstNestedValue(document, [
+      'image',
+      'imagen',
+      'imageUrl',
+      'imagenUrl',
+      'urlImagen',
+      'foto',
+      'src',
+      'url',
+      'secure_url',
+      'secureUrl',
+      'background',
+      'backgroundImage',
+      'background.image',
+      'background.url',
+      'bg',
+      'media.url',
+      'media.src',
+    ]),
+  ).trim();
+}
+
+function readEventImageTitle(document) {
+  return String(
+    getFirstNestedValue(document, [
+      'title',
+      'titulo',
+      'nombre',
+      'name',
+      'eventTitle',
+      'event_title',
+      'tituloEvento',
+      'eventoTitulo',
+      'event.title',
+      'event.titulo',
+      'evento.title',
+      'evento.titulo',
+      'event.name',
+      'evento.nombre',
+    ]),
+  ).trim();
+}
+
+function getSafeImageUrl(imageUrl) {
+  if (!imageUrl) {
+    return '';
+  }
+
+  try {
+    const parsedUrl = new URL(imageUrl);
+
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      return '';
+    }
+  } catch {
+    if (!imageUrl.startsWith('/')) {
+      return '';
+    }
+  }
+
+  return getCloudinaryImageUrl(imageUrl, {
+    width: 1200,
+    height: 800,
+    crop: 'cover',
+  });
+}
+
+function buildEventImageMap(imageDocuments) {
+  const imagesByTitle = new Map();
+
+  for (const document of imageDocuments) {
+    const titleKey = normalizeLookupKey(readEventImageTitle(document));
+    const imageUrl = getSafeImageUrl(readImageSource(document));
+
+    if (titleKey && imageUrl && !imagesByTitle.has(titleKey)) {
+      imagesByTitle.set(titleKey, {
+        image: imageUrl,
+        originalImage: readImageSource(document),
+      });
+    }
+  }
+
+  return imagesByTitle;
+}
+
+function getEventImageLookupKeys(document) {
+  return [
+    getFirstValue(document, ['title', 'titulo', 'nombre']),
+    getFirstValue(document, [
+      'location',
+      'ubicacion',
+      'localizacion',
+      'localizacionClave',
+      'lugar',
+      'sitio',
+    ]),
+  ]
+    .map(normalizeLookupKey)
+    .filter(Boolean);
+}
+
+function matchEventImages(eventDocuments, imagesByTitle) {
+  const matchedImagesByEventId = new Map();
+  const unmatchedEvents = [];
+  const usedImageKeys = new Set();
+
+  for (const document of eventDocuments) {
+    const matchedKey = getEventImageLookupKeys(document).find((key) =>
+      imagesByTitle.has(key),
+    );
+
+    if (matchedKey) {
+      matchedImagesByEventId.set(String(document._id), imagesByTitle.get(matchedKey));
+      usedImageKeys.add(matchedKey);
+    } else {
+      unmatchedEvents.push(document);
+    }
+  }
+
+  const unusedImages = [...imagesByTitle.entries()].filter(
+    ([imageKey]) => !usedImageKeys.has(imageKey),
+  );
+
+  if (unmatchedEvents.length === 1 && unusedImages.length === 1) {
+    matchedImagesByEventId.set(String(unmatchedEvents[0]._id), unusedImages[0][1]);
+  }
+
+  return matchedImagesByEventId;
+}
+
 function formatEventDate(value) {
   if (!value) {
     return '';
@@ -109,23 +250,15 @@ function normalizeLevel(value) {
   };
 }
 
-export function normalizeEvent(document) {
+export function normalizeEvent(document, imageMatch) {
   // Normaliza el documento de Mongo al contrato usado por la UI.
-  const imageUrl = String(
-    getFirstValue(document, [
-      'image',
-      'imagen',
-      'imageUrl',
-      'imagenUrl',
-      'urlImagen',
-      'foto',
-      'src',
-    ]),
-  ).trim();
+  const imageUrl = getSafeImageUrl(readImageSource(document));
+  const title = String(getFirstValue(document, ['title', 'titulo', 'nombre'])).trim();
+  const matchedImage = imageMatch?.get(String(document._id));
 
   return {
     id: String(document._id),
-    title: String(getFirstValue(document, ['title', 'titulo', 'nombre'])).trim(),
+    title,
     level: normalizeLevel(getFirstValue(document, ['level', 'nivel'])),
     type: String(
       getFirstValue(document, ['type', 'tipo', 'categoria', 'category']),
@@ -210,14 +343,8 @@ export function normalizeEvent(document) {
     tags: Array.isArray(document.tags)
       ? document.tags.map((tag) => String(tag).trim()).filter(Boolean)
       : [],
-    image: imageUrl
-      ? getCloudinaryImageUrl(imageUrl, {
-          width: 1200,
-          height: 800,
-          crop: 'cover',
-        })
-      : '',
-    originalImage: imageUrl,
+    image: matchedImage?.image || imageUrl,
+    originalImage: matchedImage?.originalImage || readImageSource(document),
   };
 }
 
@@ -226,21 +353,29 @@ export function registerEventRoutes(app) {
   app.get('/api/events', async (req, res) => {
     try {
       const eventsCollection = await getEventsCollection();
-      const events = await eventsCollection
-        .find({})
-        .sort({
-          'nivel.orden': 1,
-          horario: 1,
-          fecha: 1,
-          date: 1,
-          titulo: 1,
-          title: 1,
-        })
-        .toArray();
+      const eventImagesCollection = await getEventImagesCollection();
+      const [events, eventImages] = await Promise.all([
+        eventsCollection
+          .find({})
+          .sort({
+            'nivel.orden': 1,
+            horario: 1,
+            fecha: 1,
+            date: 1,
+            titulo: 1,
+            title: 1,
+          })
+          .toArray(),
+        eventImagesCollection.find({}).toArray(),
+      ]);
+      const imagesByTitle = buildEventImageMap(eventImages);
+      const matchedImagesByEventId = matchEventImages(events, imagesByTitle);
 
       return res.status(200).json({
         ok: true,
-        events: events.map(normalizeEvent).filter((event) => event.title),
+        events: events
+          .map((event) => normalizeEvent(event, matchedImagesByEventId))
+          .filter((event) => event.title),
       });
     } catch (error) {
       console.error('MongoDB events error:', error);

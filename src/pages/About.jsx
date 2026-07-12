@@ -109,7 +109,9 @@ export default function About() {
     const rotateVortex = (timestamp) => {
       if (lastTimestamp) {
         const elapsed = timestamp - lastTimestamp;
-        setOrbitRotation((currentRotation) => (currentRotation + elapsed * 0.018) % 360);
+        setOrbitRotation(
+          (currentRotation) => (currentRotation + elapsed * 0.083) % 360,
+        );
       }
 
       lastTimestamp = timestamp;
@@ -131,8 +133,8 @@ export default function About() {
             <h1>Paternostrum nace alrededor de una señal</h1>
             <p>
               Una plataforma privada para experiencias que no se anuncian: se
-              reconocen. El encuentro aparece cuando la intención, el lugar y
-              la persona adecuada coinciden.
+              reconocen. El encuentro aparece cuando la intención, el lugar y la
+              persona adecuada coinciden.
             </p>
           </div>
         </section>

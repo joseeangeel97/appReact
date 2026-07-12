@@ -7,6 +7,7 @@ import {
   dbName,
   defaultAccessName,
   defaultAccessPassword,
+  eventImagesCollectionName,
   eventsCollectionName,
   keySentencesCollectionName,
   mongoUri,
@@ -176,4 +177,10 @@ export async function getEventsCollection() {
   const db = await getMongoDb();
 
   return db.collection(eventsCollectionName);
+}
+
+export async function getEventImagesCollection() {
+  const db = await getMongoDb();
+
+  return db.collection(eventImagesCollectionName);
 }

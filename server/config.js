@@ -18,6 +18,8 @@ export const profileImagesCollectionName =
   globalThis.process?.env?.PROFILE_IMAGES_COLLECTION || 'images_profile';
 export const eventsCollectionName =
   globalThis.process?.env?.EVENTS_COLLECTION || 'events';
+export const eventImagesCollectionName =
+  globalThis.process?.env?.EVENT_IMAGES_COLLECTION || 'img_events';
 export const sessionsCollectionName =
   globalThis.process?.env?.SESSIONS_COLLECTION || 'sessions';
 

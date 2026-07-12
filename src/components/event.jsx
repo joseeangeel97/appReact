@@ -4,6 +4,10 @@ import styles from './event.module.css';
 
 const getClassName = (...classNames) => classNames.filter(Boolean).join(' ');
 
+function getCssImageUrl(image) {
+  return `url(${JSON.stringify(String(image || ''))})`;
+}
+
 function splitEventTitle(title) {
   const [titleLead, ...titleRest] = String(title).split(':');
   const continuation = titleRest.join(':').trim();
@@ -40,9 +44,12 @@ export default function Event({
       as='article'
       className={getClassName(styles.eventCard, className)}
     >
-      <div className={styles.imageFrame}>
-        <img src={image} alt={title} />
-      </div>
+      <div
+        className={styles.imageFrame}
+        role='img'
+        aria-label={title}
+        style={{ '--event-image': getCssImageUrl(image) }}
+      />
       <div className={styles.eventContent}>
         <div className={styles.eventHeader}>
           <h3 className={styles.eventTitle}>
