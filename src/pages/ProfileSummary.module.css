@@ -305,6 +305,399 @@
     gap: 1rem;
   }
 
+  .eventBookShell {
+    position: relative;
+    padding: clamp(0.75rem, 2vw, 1.4rem) clamp(0.55rem, 1.5vw, 1rem) 0;
+    perspective: 1400px;
+  }
+
+  .eventBook {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: clamp(44rem, 62vw, 53rem);
+    padding: clamp(0.65rem, 1.4vw, 1rem);
+    border: 1px solid rgba(255, 190, 82, 0.48);
+    border-radius: 1.2rem 1.2rem 0.7rem 0.7rem;
+    background:
+      linear-gradient(90deg, #1a0904, #5a2610 3%, #260d05 7%, #260d05 93%, #5a2610 97%, #170803),
+      #2a1008;
+    box-shadow:
+      0 1.4rem 0 -0.75rem #130603,
+      0 2rem 3.5rem rgba(0, 0, 0, 0.58),
+      0 0 2rem rgba(255, 119, 24, 0.12),
+      inset 0 0 0 0.22rem rgba(255, 184, 74, 0.08);
+    isolation: isolate;
+    animation: bookSpreadIn 0.58s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0.35rem;
+      z-index: 0;
+      border: 1px solid rgba(255, 215, 0, 0.17);
+      border-radius: 0.85rem;
+      pointer-events: none;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0.75rem;
+      bottom: 0.75rem;
+      left: 50%;
+      z-index: 5;
+      width: clamp(1.25rem, 2.4vw, 2rem);
+      transform: translateX(-50%);
+      background:
+        linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.72) 38%, rgba(255, 190, 82, 0.12) 50%, rgba(0, 0, 0, 0.72) 62%, transparent),
+        linear-gradient(180deg, transparent, rgba(255, 184, 74, 0.2), transparent);
+      filter: blur(0.15px);
+      pointer-events: none;
+    }
+  }
+
+  .bookPage {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    padding: clamp(1.15rem, 2.3vw, 2rem) clamp(1rem, 2.4vw, 2.15rem) 2.5rem;
+    overflow: hidden;
+    color: #f8f0dc;
+    background:
+      linear-gradient(118deg, transparent 0 25%, rgba(255, 238, 191, 0.025) 26%, transparent 31%),
+      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 4px),
+      radial-gradient(ellipse at 50% 12%, rgba(255, 184, 74, 0.09), transparent 24rem),
+      linear-gradient(180deg, #11100d, #090b0b 52%, #070808);
+    box-shadow:
+      inset 0 0 3rem rgba(0, 0, 0, 0.48),
+      inset 0 0 0 1px rgba(255, 224, 151, 0.12);
+
+    &[data-side='left'] {
+      border-radius: 0.75rem 0.12rem 0.12rem 0.55rem;
+      box-shadow:
+        inset -1.8rem 0 2.6rem rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(255, 224, 151, 0.12),
+        -0.35rem 0 0 rgba(224, 171, 92, 0.12);
+    }
+
+    &[data-side='right'] {
+      border-radius: 0.12rem 0.75rem 0.55rem 0.12rem;
+      box-shadow:
+        inset 1.8rem 0 2.6rem rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(255, 224, 151, 0.12),
+        0.35rem 0 0 rgba(224, 171, 92, 0.12);
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0.8rem;
+      border: 1px solid rgba(255, 184, 74, 0.14);
+      pointer-events: none;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 2.8rem;
+      height: 2.8rem;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 49%, rgba(255, 205, 116, 0.17) 50%, rgba(34, 20, 10, 0.92) 53%);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      opacity: 0.72;
+      pointer-events: none;
+    }
+  }
+
+  .bookPageInner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 1.8vw, 1.5rem);
+    height: 100%;
+  }
+
+  .bookEventImage {
+    position: relative;
+    height: clamp(8rem, 14vw, 11rem);
+    padding: 0.3rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 184, 74, 0.28);
+    background: rgba(0, 0, 0, 0.42);
+    box-shadow:
+      0 0.8rem 1.6rem rgba(0, 0, 0, 0.32),
+      inset 0 0 1.4rem rgba(255, 119, 24, 0.06);
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0.3rem;
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), transparent 36% 72%, rgba(0, 0, 0, 0.24));
+      pointer-events: none;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: sepia(0.08) saturate(0.92) contrast(1.06);
+    }
+  }
+
+  .eventSummaryMeta {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    flex: 1 1 auto;
+    align-content: space-evenly;
+    justify-items: center;
+    gap: clamp(0.65rem, 1.2vw, 1rem);
+    min-height: clamp(14rem, 23vw, 19rem);
+    padding-block: clamp(0.35rem, 1vw, 0.8rem);
+    text-align: center;
+
+    > span {
+      color: #ead184;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.15rem;
+      text-transform: uppercase;
+    }
+
+    h3 {
+      margin: 0;
+      color: #fffaf0;
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.15rem, 2vw, 1.55rem);
+      line-height: 1.2;
+      text-wrap: balance;
+      text-shadow: 0 0 1rem rgba(255, 184, 74, 0.15);
+    }
+
+    .eventType {
+      margin: 0;
+      color: rgba(236, 236, 223, 0.74);
+      font-size: 0.78rem;
+      letter-spacing: 0.08rem;
+      text-transform: uppercase;
+    }
+  }
+
+  .eventFacts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    margin: clamp(0.2rem, 0.8vw, 0.65rem) 0;
+    border-block: 1px solid rgba(255, 184, 74, 0.14);
+
+    div {
+      display: grid;
+      align-content: center;
+      gap: 0.2rem;
+      min-height: 4.25rem;
+      padding: 0.75rem 0.6rem;
+
+      & + div {
+        border-left: 1px solid rgba(255, 184, 74, 0.14);
+      }
+    }
+
+    dt {
+      color: rgba(234, 209, 132, 0.72);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.1rem;
+      text-transform: uppercase;
+    }
+
+    dd {
+      margin: 0;
+      color: rgba(248, 240, 220, 0.88);
+      font-size: 0.84rem;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .eventDescription {
+    display: -webkit-box;
+    margin: 0;
+    max-width: 34rem;
+    overflow: hidden;
+    color: rgba(236, 232, 216, 0.74);
+    font-family: Georgia, serif;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+  }
+
+  .eventTags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
+
+    span {
+      padding: 0.22rem 0.5rem;
+      border: 1px solid rgba(255, 184, 74, 0.2);
+      border-radius: 999px;
+      color: rgba(234, 209, 132, 0.74);
+      font-size: 0.58rem;
+      letter-spacing: 0.07rem;
+      text-transform: uppercase;
+    }
+  }
+
+  .eventAccessDetails {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    flex: 0 0 auto;
+    align-self: stretch;
+    gap: clamp(0.6rem, 1vw, 0.85rem);
+    margin-top: auto;
+
+    .accessDetail {
+      display: grid;
+      align-content: center;
+      gap: 0.22rem;
+      min-height: clamp(3.7rem, 5vw, 4.35rem);
+      padding: 0.68rem 0.9rem;
+      border: 1px solid rgba(255, 184, 74, 0.22);
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255, 119, 24, 0.1), transparent 7rem),
+        rgba(3, 3, 3, 0.72);
+      text-align: center;
+      box-shadow: inset 0 0 1.5rem rgba(0, 0, 0, 0.26);
+
+      span {
+        color: rgba(234, 209, 132, 0.76);
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.11rem;
+        text-transform: uppercase;
+      }
+
+      strong {
+        color: #fffaf0;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 0.88rem;
+        letter-spacing: 0.06rem;
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+
+  .bookPageNumber {
+    position: absolute;
+    right: 1.4rem;
+    bottom: 0.85rem;
+    z-index: 3;
+    color: rgba(234, 209, 132, 0.58);
+    font-family: Georgia, serif;
+    font-size: 0.75rem;
+  }
+
+  .bookPage[data-side='left'] .bookPageNumber {
+    right: auto;
+    left: 1.4rem;
+  }
+
+  .bookPageEmpty {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 0.8rem;
+
+    .bookEmblem {
+      color: rgba(234, 209, 132, 0.28);
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      text-shadow: 0 0 2rem rgba(255, 184, 74, 0.12);
+    }
+
+    p {
+      margin: 0;
+      color: rgba(234, 209, 132, 0.42);
+      font-family: 'Cinzel Decorative', serif;
+      letter-spacing: 0.12rem;
+      text-transform: uppercase;
+    }
+  }
+
+  .bookNavigation {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    margin-top: clamp(1.5rem, 3vw, 2.2rem);
+
+    > span {
+      color: rgba(255, 235, 138, 0.72);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1rem;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      min-height: 2.8rem;
+      padding: 0.65rem 1rem;
+      border: 1px solid rgba(255, 184, 74, 0.32);
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(54, 24, 10, 0.92), rgba(13, 7, 4, 0.94));
+      color: #fff3c4;
+      font: inherit;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow:
+        0 0.7rem 1.4rem rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+      &:first-child {
+        justify-self: start;
+      }
+
+      &:last-child {
+        justify-self: end;
+      }
+
+      &:hover:not(:disabled),
+      &:focus-visible:not(:disabled) {
+        border-color: rgba(255, 215, 0, 0.62);
+        transform: translateY(-2px);
+        box-shadow:
+          0 0.9rem 1.6rem rgba(0, 0, 0, 0.34),
+          0 0 1.4rem rgba(255, 119, 24, 0.16);
+      }
+
+      &:disabled {
+        opacity: 0.32;
+        cursor: not-allowed;
+      }
+
+      span {
+        font-size: 1.15rem;
+        line-height: 1;
+      }
+    }
+  }
+
   .eventSummaryCard,
   .emptyEvents {
     position: relative;
@@ -517,5 +910,64 @@
         min-height: auto;
       }
     }
+
+    .eventBookShell {
+      padding-inline: 0;
+    }
+
+    .eventBook {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+      min-height: auto;
+      padding: 0.55rem;
+
+      &::after {
+        display: none;
+      }
+    }
+
+    .bookPage {
+      min-height: 42rem;
+      border-radius: 0.5rem;
+
+      &[data-side='left'],
+      &[data-side='right'] {
+        border-radius: 0.5rem;
+        box-shadow:
+          inset 0 0 2rem rgba(0, 0, 0, 0.38),
+          inset 0 0 0 1px rgba(255, 224, 151, 0.12);
+      }
+    }
+
+    .bookNavigation {
+      grid-template-columns: repeat(2, 1fr);
+
+      > span {
+        grid-column: 1 / -1;
+        grid-row: 1;
+      }
+
+      button {
+        grid-row: 2;
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eventBook {
+    animation: none;
+  }
+}
+
+@keyframes bookSpreadIn {
+  from {
+    opacity: 0;
+    transform: rotateX(2deg) translateY(0.7rem) scale(0.992);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

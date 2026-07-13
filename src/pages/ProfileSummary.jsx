@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 
 import Header from '../components/Header';
@@ -42,10 +43,88 @@ function getEventInitialPassword(event) {
   );
 }
 
+function EventBookPage({ event, pageNumber, side }) {
+  if (!event) {
+    return (
+      <div
+        className={`${styles.bookPage} ${styles.bookPageEmpty}`}
+        data-side={side}
+        aria-hidden='true'
+      >
+        <span className={styles.bookEmblem}>◇</span>
+        <p>Fin de la agenda</p>
+        <span className={styles.bookPageNumber}>{pageNumber}</span>
+      </div>
+    );
+  }
+
+  return (
+    <article className={styles.bookPage} data-side={side}>
+      <div className={styles.bookPageInner}>
+        {event.image && (
+          <div className={styles.bookEventImage}>
+            <img src={event.image} alt={event.title} />
+          </div>
+        )}
+
+        <div className={styles.eventSummaryMeta}>
+          <span>
+            Nivel {event.level?.order || '-'} ·{' '}
+            {event.level?.name || 'Sin nivel'}
+          </span>
+          <h3>{event.title}</h3>
+          <p className={styles.eventType}>{event.type}</p>
+          <dl className={styles.eventFacts}>
+            <div>
+              <dt>Fecha</dt>
+              <dd>{event.date || 'Pendiente de confirmar'}</dd>
+            </div>
+            <div>
+              <dt>Lugar</dt>
+              <dd>{event.location || 'Ubicación reservada'}</dd>
+            </div>
+          </dl>
+          {event.description && (
+            <p className={styles.eventDescription}>{event.description}</p>
+          )}
+          {Array.isArray(event.tags) && event.tags.length > 0 && (
+            <div className={styles.eventTags} aria-label='Etiquetas del evento'>
+              {event.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.eventAccessDetails}>
+          <AccessDetail
+            label='Código de acceso'
+            value={getEventAccessKey(event)}
+          />
+          <AccessDetail
+            label='Password inicial'
+            value={getEventInitialPassword(event)}
+          />
+          <AccessDetail label='Estado' value={event.status} />
+        </div>
+      </div>
+      <span className={styles.bookPageNumber}>{pageNumber}</span>
+    </article>
+  );
+}
+
 export default function ProfileSummary() {
   const activeProfile = useActiveProfile();
   const attendingEvents = useAttendingEvents();
   const profileImage = activeProfile?.image;
+  const [spreadIndex, setSpreadIndex] = useState(0);
+  const totalSpreads = Math.max(1, Math.ceil(attendingEvents.length / 2));
+  const currentSpreadIndex = Math.min(spreadIndex, totalSpreads - 1);
+  const firstEventIndex = currentSpreadIndex * 2;
+  const visibleEvents = attendingEvents.slice(
+    firstEventIndex,
+    firstEventIndex + 2,
+  );
 
   if (!activeProfile) {
     return <Navigate to='/login/initiated' replace />;
@@ -95,40 +174,49 @@ export default function ProfileSummary() {
           </div>
 
           {attendingEvents.length > 0 ? (
-            <div className={styles.eventsGrid}>
-              {attendingEvents.map((event) => (
-                <article
-                  key={event.id || event.title}
-                  className={`${styles.eventSummaryCard} ${
-                    !event.image ? styles.eventSummaryCardNoImage : ''
-                  }`}
-                >
-                  {event.image && <img src={event.image} alt={event.title} />}
-                  <div className={styles.eventSummaryContent}>
-                    <div className={styles.eventSummaryMeta}>
-                      <span>
-                        Nivel {event.level?.order || '-'} ·{' '}
-                        {event.level?.name || 'Sin nivel'}
-                      </span>
-                      <h3>{event.title}</h3>
-                      <p>{event.type}</p>
-                      <p>{event.date}</p>
-                      <p>{event.location}</p>
-                    </div>
-                    <div className={styles.eventAccessDetails}>
-                      <AccessDetail
-                        label='Código de acceso'
-                        value={getEventAccessKey(event)}
-                      />
-                      <AccessDetail
-                        label='Password inicial'
-                        value={getEventInitialPassword(event)}
-                      />
-                      <AccessDetail label='Estado' value={event.status} />
-                    </div>
-                  </div>
-                </article>
-              ))}
+            <div className={styles.eventBookShell}>
+              <div
+                key={currentSpreadIndex}
+                className={styles.eventBook}
+                aria-label={`Páginas ${firstEventIndex + 1} y ${firstEventIndex + 2} de la agenda`}
+              >
+                <EventBookPage
+                  event={visibleEvents[0]}
+                  pageNumber={firstEventIndex + 1}
+                  side='left'
+                />
+                <EventBookPage
+                  event={visibleEvents[1]}
+                  pageNumber={firstEventIndex + 2}
+                  side='right'
+                />
+              </div>
+
+              {totalSpreads > 1 && (
+                <nav className={styles.bookNavigation} aria-label='Páginas de la agenda'>
+                  <button
+                    type='button'
+                    onClick={() => setSpreadIndex(currentSpreadIndex - 1)}
+                    disabled={currentSpreadIndex === 0}
+                    aria-label='Ver páginas anteriores'
+                  >
+                    <span aria-hidden='true'>←</span>
+                    Anterior
+                  </button>
+                  <span aria-live='polite'>
+                    Pliego {currentSpreadIndex + 1} de {totalSpreads}
+                  </span>
+                  <button
+                    type='button'
+                    onClick={() => setSpreadIndex(currentSpreadIndex + 1)}
+                    disabled={currentSpreadIndex === totalSpreads - 1}
+                    aria-label='Ver páginas siguientes'
+                  >
+                    Siguiente
+                    <span aria-hidden='true'>→</span>
+                  </button>
+                </nav>
+              )}
             </div>
           ) : (
             <div className={styles.emptyEvents}>
