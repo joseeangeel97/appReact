@@ -105,24 +105,30 @@ export async function getAuthCollection() {
 
       // El santo de acceso debe ser único.
       await collection.createIndex({ name: 1 }, { unique: true });
-      await collection.updateOne(
-        { name: defaultAccessName },
-        {
-          $setOnInsert: {
-            name: defaultAccessName,
-            createdAt: new Date(),
+      // Las credenciales conocidas solo facilitan el desarrollo local. En
+      // producción se crea el acceso inicial únicamente si llega por entorno.
+      if (defaultAccessName && defaultAccessPassword) {
+        await collection.updateOne(
+          { name: defaultAccessName },
+          {
+            $setOnInsert: {
+              name: defaultAccessName,
+              createdAt: new Date(),
+            },
           },
-        },
-        { upsert: true },
-      );
+          { upsert: true },
+        );
+      }
 
-      const defaultUser = await collection.findOne(
-        { name: defaultAccessName },
-        { projection: { password: 1, passwordHash: 1 } },
-      );
+      const defaultUser = defaultAccessName
+        ? await collection.findOne(
+            { name: defaultAccessName },
+            { projection: { password: 1, passwordHash: 1 } },
+          )
+        : null;
 
       // Si la contraseña antigua estaba en texto plano, se guarda como hash.
-      if (!defaultUser?.passwordHash) {
+      if (defaultUser && !defaultUser.passwordHash) {
         const passwordToHash = defaultUser?.password || defaultAccessPassword;
         const passwordHash = await bcrypt.hash(
           passwordToHash,
@@ -136,7 +142,7 @@ export async function getAuthCollection() {
             $unset: { password: '' },
           },
         );
-      } else if (defaultUser.password) {
+      } else if (defaultUser?.password) {
         await collection.updateOne(
           { name: defaultAccessName },
           { $unset: { password: '' } },

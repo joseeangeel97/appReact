@@ -1,13 +1,10 @@
 body {
   margin: 0;
   font-family: 'Cinzel Decorative', serif;
-  background: #f4f4f5;
-  color: #222;
+  background: #02060c;
+  color: #f8fbff;
 }
 
 main {
   min-height: 100vh;
-  display: grid;
-  place-content: center;
-  text-align: center;
 }

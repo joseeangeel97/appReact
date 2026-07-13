@@ -1,3 +1,7 @@
+import { randomBytes } from 'node:crypto';
+
+import { isProduction } from './config.js';
+
 const DEFAULT_WINDOW_MS = 15 * 60 * 1000;
 const DEFAULT_MAX_REQUESTS = 300;
 const stores = new Map();
@@ -49,15 +53,67 @@ function getRequestPath(req) {
 }
 
 export function securityHeaders(req, res, next) {
+  // El nonce autoriza únicamente el pequeño script SSR que hidrata la sesión pública.
+  const cspNonce = randomBytes(18).toString('base64url');
+  const scriptPolicy = isProduction
+    ? `script-src 'self' 'nonce-${cspNonce}'`
+    : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+  const connectPolicy = isProduction
+    ? "connect-src 'self'"
+    : "connect-src 'self' ws: wss:";
+
+  res.locals.cspNonce = cspNonce;
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
+  res.setHeader('Origin-Agent-Cluster', '?1');
   res.setHeader(
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=()',
   );
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      scriptPolicy,
+      // React usa variables CSS inline; los scripts siguen protegidos por nonce.
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: blob: https:",
+      connectPolicy,
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+    ].join('; '),
+  );
+
+  if (isProduction) {
+    res.setHeader(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains',
+    );
+  }
 
   next();
+}
+
+export function crossSiteRequestGuard(req, res, next) {
+  const unsafeMethod = !['GET', 'HEAD', 'OPTIONS'].includes(req.method);
+  const fetchSite = String(req.get('Sec-Fetch-Site') || '').toLowerCase();
+
+  // Las cookies SameSite ya protegen la sesión; esta segunda barrera rechaza
+  // explícitamente escrituras iniciadas desde otro sitio en navegadores modernos.
+  if (unsafeMethod && fetchSite === 'cross-site') {
+    return res.status(403).json({
+      ok: false,
+      message: 'Origen de solicitud no permitido',
+    });
+  }
+
+  return next();
 }
 
 export function jsonErrorHandler(error, req, res, next) {

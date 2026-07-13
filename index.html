@@ -1,9 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo-rey-head.svg" />
+    <link rel="icon" type="image/svg+xml" href="/logo-rey-head.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Agenda privada de eventos y experiencias Paternostrum."
+    />
+    <link rel="stylesheet" href="/boot.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,6 +19,13 @@
   </head>
   <body>
     <div id="root"><!--ssr-outlet--></div>
+    <div class="appBoot" id="app-boot" role="status" aria-label="Cargando Paternostrum">
+      <div class="appBoot__content">
+        <img class="appBoot__logo" src="/logo1.png" alt="" />
+        <p class="appBoot__title">Paternostrum</p>
+        <span class="appBoot__status" aria-hidden="true"></span>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

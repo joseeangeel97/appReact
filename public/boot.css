@@ -1,0 +1,142 @@
+/* Pantalla crítica: se descarga antes de React para ocultar cualquier FOUC. */
+html {
+  background: #02060c;
+}
+
+body {
+  margin: 0;
+}
+
+.appBoot {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(127, 255, 212, 0.13), transparent 19rem),
+    radial-gradient(circle at 50% 62%, rgba(255, 166, 52, 0.1), transparent 22rem),
+    linear-gradient(145deg, #020812, #03070e 48%, #0d0804);
+  color: #fff7bf;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.5s ease,
+    visibility 0.5s step-end;
+}
+
+.appBoot::before,
+.appBoot::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.appBoot::before {
+  width: min(78vw, 34rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 215, 0, 0.16);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2rem rgba(127, 255, 212, 0.025),
+    0 0 0 5rem rgba(255, 215, 0, 0.018),
+    0 0 5rem rgba(127, 255, 212, 0.12);
+  animation: bootOrbit 8s linear infinite;
+}
+
+.appBoot::after {
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent) 50% calc(50% + 8rem) / min(70vw, 27rem) 1px no-repeat;
+  opacity: 0.65;
+}
+
+.appBoot__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.appBoot__logo {
+  width: clamp(11rem, 28vw, 19rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 0 1.4rem rgba(127, 255, 212, 0.34))
+    drop-shadow(0 0 2.6rem rgba(255, 215, 0, 0.13));
+  animation: bootPulse 1.8s ease-in-out infinite alternate;
+}
+
+.appBoot__title {
+  margin: 0;
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: clamp(1rem, 2.7vw, 1.55rem);
+  letter-spacing: clamp(0.16rem, 0.7vw, 0.42rem);
+  text-transform: uppercase;
+  text-shadow: 0 0 1.2rem rgba(127, 255, 212, 0.35);
+}
+
+.appBoot__status {
+  width: min(52vw, 13rem);
+  height: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.appBoot__status::after {
+  content: '';
+  display: block;
+  width: 46%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #7fffd4, #ffd700, transparent);
+  animation: bootProgress 1.15s ease-in-out infinite;
+}
+
+html.appReady .appBoot {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appBoot::before,
+  .appBoot__logo,
+  .appBoot__status::after {
+    animation: none;
+  }
+}
+
+@keyframes bootPulse {
+  from {
+    transform: scale(0.97);
+    filter: drop-shadow(0 0 1rem rgba(127, 255, 212, 0.24));
+  }
+
+  to {
+    transform: scale(1.025);
+    filter:
+      drop-shadow(0 0 1.8rem rgba(127, 255, 212, 0.42))
+      drop-shadow(0 0 3rem rgba(255, 215, 0, 0.16));
+  }
+}
+
+@keyframes bootOrbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bootProgress {
+  from {
+    transform: translateX(-120%);
+  }
+
+  to {
+    transform: translateX(270%);
+  }
+}

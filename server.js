@@ -11,6 +11,7 @@ import { registerSessionRoutes } from './server/routes/session.js';
 import { sessionMiddleware } from './server/session.js';
 import {
   createRateLimiter,
+  crossSiteRequestGuard,
   jsonErrorHandler,
   noSqlInjectionGuard,
   securityHeaders,
@@ -33,6 +34,7 @@ async function createServer() {
 
   app.disable('x-powered-by');
   app.use(securityHeaders);
+  app.use(crossSiteRequestGuard);
 
   // Permite leer cuerpos JSON enviados desde los formularios del frontend.
   app.use(express.json({ limit: '32kb', strict: true }));

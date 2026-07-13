@@ -25,10 +25,12 @@ export const sessionsCollectionName =
 
 // Credenciales iniciales para asegurar que exista una entrada de acceso.
 export const defaultAccessName =
-  globalThis.process?.env?.DEFAULT_ACCESS_NAME?.trim() || 'SATOR';
+  globalThis.process?.env?.DEFAULT_ACCESS_NAME?.trim() ||
+  (isProduction ? '' : 'SATOR');
 export const defaultAccessPassword =
-  globalThis.process?.env?.DEFAULT_ACCESS_PASSWORD?.trim() || 'TENET';
+  globalThis.process?.env?.DEFAULT_ACCESS_PASSWORD?.trim() ||
+  (isProduction ? '' : 'TENET');
 
 // Parámetros compartidos por seguridad e imágenes.
-export const bcryptSaltRounds = 10;
+export const bcryptSaltRounds = 12;
 export const cloudinaryUrl = globalThis.process?.env?.CLOUDINARY_URL;

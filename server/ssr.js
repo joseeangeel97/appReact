@@ -9,9 +9,9 @@ function serializeSession(session) {
   return JSON.stringify(session).replace(/</g, '\\u003c');
 }
 
-function injectInitialSession(html, session) {
+function injectInitialSession(html, session, nonce) {
   // La sesión pública hidrata React; el identificador real vive solo en cookie HttpOnly.
-  const script = `<script>window.__MINIHUB_SESSION__=${serializeSession(session)}</script>`;
+  const script = `<script nonce="${nonce}">window.__MINIHUB_SESSION__=${serializeSession(session)}</script>`;
 
   return html.replace('</body>', `${script}</body>`);
 }
@@ -46,8 +46,16 @@ export async function configureSsr(app, httpServer, { rootDir, isProduction }) {
         const html = injectInitialSession(
           template.replace('<!--ssr-outlet-->', appHtml),
           session,
+          res.locals.cspNonce,
         );
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+        // El HTML contiene la sesión pública del usuario y nunca debe cachearse.
+        res
+          .status(200)
+          .set({
+            'Content-Type': 'text/html',
+            'Cache-Control': 'no-store',
+          })
+          .end(html);
       } catch (e) {
         vite.ssrFixStacktrace(e);
         next(e);
@@ -76,11 +84,19 @@ export async function configureSsr(app, httpServer, { rootDir, isProduction }) {
       const html = injectInitialSession(
         template.replace('<!--ssr-outlet-->', appHtml),
         session,
+        res.locals.cspNonce,
       );
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+      res
+        .status(200)
+        .set({
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-store',
+        })
+        .end(html);
     } catch (e) {
       console.error(e);
-      res.status(500).end(e.message);
+      // Los detalles quedan en el log, no en una respuesta visible al cliente.
+      res.status(500).end('No se pudo renderizar la aplicación');
     }
   });
 }

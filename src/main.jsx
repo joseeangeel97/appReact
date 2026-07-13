@@ -12,3 +12,15 @@ hydrateRoot(
     </BrowserRouter>
   </StrictMode>,
 );
+
+// El módulo solo se ejecuta cuando Vite ya ha aplicado el CSS de la aplicación.
+// Dos frames permiten al navegador pintar la vista final antes de retirar la portada.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    document.documentElement.classList.add('appReady');
+
+    window.setTimeout(() => {
+      document.getElementById('app-boot')?.remove();
+    }, 550);
+  });
+});

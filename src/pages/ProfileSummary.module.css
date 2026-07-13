@@ -299,12 +299,6 @@
     }
   }
 
-  .eventsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr));
-    gap: 1rem;
-  }
-
   .eventBookShell {
     position: relative;
     padding: clamp(0.75rem, 2vw, 1.4rem) clamp(0.55rem, 1.5vw, 1rem) 0;
@@ -542,12 +536,17 @@
     gap: 0.35rem;
 
     span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       padding: 0.22rem 0.5rem;
       border: 1px solid rgba(255, 184, 74, 0.2);
       border-radius: 999px;
       color: rgba(234, 209, 132, 0.74);
       font-size: 0.58rem;
       letter-spacing: 0.07rem;
+      line-height: 1.2;
+      text-align: center;
       text-transform: uppercase;
     }
   }
@@ -698,7 +697,6 @@
     }
   }
 
-  .eventSummaryCard,
   .emptyEvents {
     position: relative;
     overflow: hidden;
@@ -734,123 +732,6 @@
     > * {
       position: relative;
       z-index: 1;
-    }
-  }
-
-  .eventSummaryCard {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    min-height: 44rem;
-
-    img {
-      width: 100%;
-      height: 11.5rem;
-      object-fit: cover;
-      filter: saturate(1.05) contrast(1.04);
-      box-shadow:
-        inset 0 -20px 34px rgba(0, 0, 0, 0.38),
-        0 1px 0 rgba(255, 215, 0, 0.16);
-      clip-path: polygon(0 0, calc(100% - 0.8rem) 0, 100% 0.8rem, 100% 100%, 0 100%);
-    }
-
-    .eventSummaryContent {
-      display: grid;
-      grid-template-rows: minmax(12rem, auto) auto;
-      align-content: space-between;
-      gap: 1rem;
-      padding: 1rem;
-      min-height: 0;
-      text-align: center;
-    }
-
-    &.eventSummaryCardNoImage {
-      grid-template-rows: 1fr;
-      min-height: 24rem;
-
-      .eventSummaryContent {
-        align-content: start;
-        padding: clamp(1rem, 2vw, 1.35rem);
-      }
-    }
-
-    .eventSummaryMeta {
-      display: grid;
-      gap: 0.4rem;
-      align-content: start;
-      justify-items: center;
-      min-height: 12rem;
-    }
-
-    span {
-      color: #ffeb8a;
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.12rem;
-      text-transform: uppercase;
-    }
-
-    h3 {
-      margin: 0;
-      color: #fff;
-      font-size: 1.35rem;
-      line-height: 1.15;
-    }
-
-    p {
-      margin: 0;
-      color: rgba(232, 247, 243, 0.82);
-      line-height: 1.45;
-    }
-
-    .eventAccessDetails {
-      display: grid;
-      gap: 0.55rem;
-      align-self: start;
-      margin-top: 0;
-
-      .accessDetail {
-        display: grid;
-        align-content: center;
-        gap: 0.28rem;
-        min-height: 4rem;
-        padding: 0.7rem 0.9rem;
-        border: 1px solid rgba(255, 184, 74, 0.22);
-        border-radius: 999px;
-        background:
-          radial-gradient(circle at 50% 0%, rgba(255, 119, 24, 0.1), transparent 7rem),
-          linear-gradient(180deg, rgba(18, 8, 3, 0.9), rgba(1, 5, 12, 0.88));
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.08),
-          inset 0 0 30px rgba(0, 0, 0, 0.18),
-          0 0 14px rgba(255, 119, 24, 0.06);
-        transition:
-          border-color 0.2s ease,
-          background 0.18s ease,
-          box-shadow 0.2s ease;
-
-        &:hover {
-          border-color: rgba(255, 184, 74, 0.58);
-          box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.1),
-            inset 0 0 38px rgba(0, 0, 0, 0.28),
-            0 0 24px rgba(255, 119, 24, 0.18);
-        }
-      }
-
-      span {
-        color: rgba(255, 235, 138, 0.78);
-        font-size: 0.68rem;
-      }
-
-      strong {
-        color: #eafff9;
-        font-size: 1rem;
-        letter-spacing: 0.08rem;
-        overflow-wrap: anywhere;
-        text-shadow:
-          0 2px 10px rgba(0, 0, 0, 0.58),
-          0 0 14px rgba(255, 119, 24, 0.26);
-      }
     }
   }
 
@@ -896,19 +777,6 @@
     .sectionHeader {
       align-items: flex-start;
       flex-direction: column;
-    }
-
-    .eventSummaryCard {
-      min-height: auto;
-
-      .eventSummaryContent {
-        grid-template-rows: auto auto;
-        align-content: start;
-      }
-
-      .eventSummaryMeta {
-        min-height: auto;
-      }
     }
 
     .eventBookShell {
