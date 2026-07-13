@@ -4,10 +4,6 @@ import styles from './event.module.css';
 
 const getClassName = (...classNames) => classNames.filter(Boolean).join(' ');
 
-function getCssImageUrl(image) {
-  return `url(${JSON.stringify(String(image || ''))})`;
-}
-
 function splitEventTitle(title) {
   const [titleLead, ...titleRest] = String(title).split(':');
   const continuation = titleRest.join(':').trim();
@@ -33,6 +29,7 @@ export default function Event({
   description,
   tags = [],
   image,
+  secondaryImage,
   onReserve,
   className,
   reserved = false,
@@ -44,19 +41,29 @@ export default function Event({
       as='article'
       className={getClassName(styles.eventCard, className)}
     >
-      <div
-        className={styles.imageFrame}
-        role='img'
-        aria-label={title}
-        style={{ '--event-image': getCssImageUrl(image) }}
-      />
+      <div className={styles.imageFrame} role='img' aria-label={title}>
+        {image && secondaryImage ? (
+          <>
+            <img className={styles.imageTriangle} src={image} alt='' />
+            <img
+              className={styles.imageTriangleSecondary}
+              src={secondaryImage}
+              alt=''
+            />
+          </>
+        ) : (
+          <img
+            className={styles.imageSingle}
+            src={image || secondaryImage || ''}
+            alt=''
+          />
+        )}
+      </div>
       <div className={styles.eventContent}>
         <div className={styles.eventHeader}>
           <h3 className={styles.eventTitle}>
             <span>{eventTitle.lead}</span>
-            {eventTitle.continuation && (
-              <span>{eventTitle.continuation}</span>
-            )}
+            {eventTitle.continuation && <span>{eventTitle.continuation}</span>}
           </h3>
           <span className={styles.eventType}>{type}</span>
         </div>

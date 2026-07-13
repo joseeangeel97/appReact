@@ -7,7 +7,6 @@ import { isProduction } from './server/config.js';
 import { registerAuthRoutes } from './server/routes/auth.js';
 import { registerEventRoutes } from './server/routes/events.js';
 import { registerProfileRoutes } from './server/routes/profile.js';
-import { registerSessionRoutes } from './server/routes/session.js';
 import {
   createRateLimiter,
   jsonErrorHandler,
@@ -15,7 +14,6 @@ import {
   securityHeaders,
   startRateLimitCleanup,
 } from './server/security.js';
-import { sessionMiddleware, startSessionCleanup } from './server/session.js';
 import { configureSsr } from './server/ssr.js';
 
 // Punto de entrada del backend: crea Express, registra rutas y sirve React.
@@ -45,7 +43,7 @@ async function createServer() {
     createRateLimiter({
       name: 'api',
       windowMs: 15 * 60 * 1000,
-      max: 300,
+      max: 50,
     }),
   );
   app.use(
@@ -67,22 +65,11 @@ async function createServer() {
     }),
   );
   startRateLimitCleanup();
-  app.use(sessionMiddleware);
-  startSessionCleanup();
 
   // Rutas de autenticación general y de perfiles/iniciados.
   registerAuthRoutes(app);
-  registerSessionRoutes(app);
   registerEventRoutes(app);
   registerProfileRoutes(app);
-
-  // Ninguna ruta /api debe caer al SSR; si no existe, responde como API.
-  app.use('/api', (req, res) =>
-    res.status(404).json({
-      ok: false,
-      message: 'Ruta de API no encontrada',
-    }),
-  );
 
   // En desarrollo usa Vite como middleware; en producción sirve dist/.
   await configureSsr(app, httpServer, {

@@ -11,7 +11,9 @@ function getFirstValue(document, fieldNames) {
     }
 
     if (typeof value === 'object') {
-      if (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0) {
+      if (
+        Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0
+      ) {
         return value;
       }
 
@@ -45,7 +47,9 @@ function getFirstNestedValue(document, fieldPaths) {
     }
 
     if (typeof value === 'object') {
-      if (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0) {
+      if (
+        Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0
+      ) {
         return value;
       }
 
@@ -72,6 +76,7 @@ function normalizeLookupKey(value) {
 function readImageSource(document) {
   return String(
     getFirstNestedValue(document, [
+      'url',
       'image',
       'imagen',
       'imageUrl',
@@ -79,16 +84,24 @@ function readImageSource(document) {
       'urlImagen',
       'foto',
       'src',
-      'url',
       'secure_url',
       'secureUrl',
-      'background',
-      'backgroundImage',
-      'background.image',
-      'background.url',
-      'bg',
-      'media.url',
-      'media.src',
+    ]),
+  ).trim();
+}
+
+function readSecondaryImageSource(document) {
+  return String(
+    getFirstNestedValue(document, [
+      'co_image',
+      'coImage',
+      'secondaryImage',
+      'secondaryImageUrl',
+      'secondImage',
+      'secondImageUrl',
+      'image2',
+      'image_2',
+      'img2',
     ]),
   ).trim();
 }
@@ -143,12 +156,26 @@ function buildEventImageMap(imageDocuments) {
 
   for (const document of imageDocuments) {
     const titleKey = normalizeLookupKey(readEventImageTitle(document));
-    const imageUrl = getSafeImageUrl(readImageSource(document));
+    const primaryImageUrl = getSafeImageUrl(readImageSource(document));
+    const secondaryImageUrl = getSafeImageUrl(
+      readSecondaryImageSource(document),
+    );
 
-    if (titleKey && imageUrl && !imagesByTitle.has(titleKey)) {
+    if (
+      titleKey &&
+      (primaryImageUrl || secondaryImageUrl) &&
+      !imagesByTitle.has(titleKey)
+    ) {
       imagesByTitle.set(titleKey, {
-        image: imageUrl,
-        originalImage: readImageSource(document),
+        image: primaryImageUrl || secondaryImageUrl,
+        secondaryImage:
+          secondaryImageUrl && secondaryImageUrl !== primaryImageUrl
+            ? secondaryImageUrl
+            : '',
+        originalImage:
+          secondaryImageUrl && secondaryImageUrl !== primaryImageUrl
+            ? secondaryImageUrl
+            : primaryImageUrl,
       });
     }
   }
@@ -183,7 +210,10 @@ function matchEventImages(eventDocuments, imagesByTitle) {
     );
 
     if (matchedKey) {
-      matchedImagesByEventId.set(String(document._id), imagesByTitle.get(matchedKey));
+      matchedImagesByEventId.set(
+        String(document._id),
+        imagesByTitle.get(matchedKey),
+      );
       usedImageKeys.add(matchedKey);
     } else {
       unmatchedEvents.push(document);
@@ -195,7 +225,10 @@ function matchEventImages(eventDocuments, imagesByTitle) {
   );
 
   if (unmatchedEvents.length === 1 && unusedImages.length === 1) {
-    matchedImagesByEventId.set(String(unmatchedEvents[0]._id), unusedImages[0][1]);
+    matchedImagesByEventId.set(
+      String(unmatchedEvents[0]._id),
+      unusedImages[0][1],
+    );
   }
 
   return matchedImagesByEventId;
@@ -253,7 +286,9 @@ function normalizeLevel(value) {
 export function normalizeEvent(document, imageMatch) {
   // Normaliza el documento de Mongo al contrato usado por la UI.
   const imageUrl = getSafeImageUrl(readImageSource(document));
-  const title = String(getFirstValue(document, ['title', 'titulo', 'nombre'])).trim();
+  const title = String(
+    getFirstValue(document, ['title', 'titulo', 'nombre']),
+  ).trim();
   const matchedImage = imageMatch?.get(String(document._id));
 
   return {
@@ -344,7 +379,16 @@ export function normalizeEvent(document, imageMatch) {
       ? document.tags.map((tag) => String(tag).trim()).filter(Boolean)
       : [],
     image: matchedImage?.image || imageUrl,
-    originalImage: matchedImage?.originalImage || readImageSource(document),
+    secondaryImage:
+      matchedImage?.secondaryImage ||
+      matchedImage?.originalImage ||
+      getSafeImageUrl(readSecondaryImageSource(document)) ||
+      imageUrl,
+    originalImage:
+      matchedImage?.secondaryImage ||
+      matchedImage?.originalImage ||
+      getSafeImageUrl(readSecondaryImageSource(document)) ||
+      imageUrl,
   };
 }
 

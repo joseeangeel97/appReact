@@ -23,6 +23,7 @@ export default function EventBlock({
         description={event.description}
         tags={event.tags}
         image={event.image}
+        secondaryImage={event.originalImage}
         onReserve={() => onReserve(event)}
         reserved={reserved}
       />
