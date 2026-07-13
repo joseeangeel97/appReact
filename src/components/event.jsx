@@ -44,12 +44,23 @@ export default function Event({
       <div className={styles.imageFrame} role='img' aria-label={title}>
         {image && secondaryImage ? (
           <>
-            <img className={styles.imageTriangle} src={image} alt='' />
-            <img
-              className={styles.imageTriangleSecondary}
-              src={secondaryImage}
-              alt=''
-            />
+            <div className={`${styles.imagePanel} ${styles.imagePanelPrimary}`}>
+              <img src={image} alt='' />
+              <span className={styles.imageLabel} aria-hidden='true'>
+                <strong>01</strong>
+                Optica Xion
+              </span>
+            </div>
+            <div
+              className={`${styles.imagePanel} ${styles.imagePanelSecondary}`}
+            >
+              <img src={secondaryImage} alt='' />
+              <span className={styles.imageLabel} aria-hidden='true'>
+                <strong>02</strong>
+                Optica Gamma
+              </span>
+            </div>
+            <span className={styles.imageDivider} aria-hidden='true' />
           </>
         ) : (
           <img

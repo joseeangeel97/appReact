@@ -7,6 +7,8 @@ import { isProduction } from './server/config.js';
 import { registerAuthRoutes } from './server/routes/auth.js';
 import { registerEventRoutes } from './server/routes/events.js';
 import { registerProfileRoutes } from './server/routes/profile.js';
+import { registerSessionRoutes } from './server/routes/session.js';
+import { sessionMiddleware } from './server/session.js';
 import {
   createRateLimiter,
   jsonErrorHandler,
@@ -66,10 +68,14 @@ async function createServer() {
   );
   startRateLimitCleanup();
 
+  // Hidrata la sesión de cada request antes de que las rutas o el SSR la lean.
+  app.use(sessionMiddleware);
+
   // Rutas de autenticación general y de perfiles/iniciados.
   registerAuthRoutes(app);
   registerEventRoutes(app);
   registerProfileRoutes(app);
+  registerSessionRoutes(app);
 
   // En desarrollo usa Vite como middleware; en producción sirve dist/.
   await configureSsr(app, httpServer, {

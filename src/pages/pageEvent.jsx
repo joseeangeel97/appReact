@@ -164,11 +164,14 @@ export default function PageEvent() {
         title: 'Reserva registrada',
         message: `${event.title}: los pases se muestran temporalmente hasta confirmación. No implica acceso garantizado.`,
       });
-    } catch {
+    } catch (error) {
       setReservationNotice({
         type: 'error',
-        title: 'Sesión necesaria',
-        message: 'Inicia sesión para reservar eventos y custodiar tus pases.',
+        title: 'No se pudo reservar',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'No se pudo guardar la reserva. Inténtalo de nuevo.',
       });
     }
   };

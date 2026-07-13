@@ -55,12 +55,12 @@ export default function SessionProvider({ children, initialSession }) {
       // Enviamos solo el id; el servidor reconstruye el evento confiable desde Mongo.
       body: JSON.stringify({ eventId: event?.id }),
     });
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      throw new Error('Event reservation failed');
+      throw new Error(data?.message || 'No se pudo guardar la reserva');
     }
 
-    const data = await response.json();
     const nextSession = normalizeSession(data.session);
 
     setSession(nextSession);
