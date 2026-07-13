@@ -22,11 +22,9 @@ import { configureSsr } from './server/ssr.js';
 // Punto de entrada del backend: crea Express, registra rutas y sirve React.
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const isVercel = Boolean(globalThis.process?.env?.VERCEL);
 
-async function createServer() {
-  const app = express();
-  const httpServer = createHttpServer(app);
-
+async function configureApp(app, httpServer) {
   // Express debe respetar la IP real cuando la app esté detrás de un proxy seguro.
   if (isProduction) {
     app.set('trust proxy', 1);
@@ -85,6 +83,17 @@ async function createServer() {
     isProduction,
   });
 
+  return app;
+}
+
+const app = express();
+const httpServer = isVercel ? null : createHttpServer(app);
+
+await configureApp(app, httpServer);
+
+// Vercel importa la aplicación como una Function. El listener solo se crea
+// cuando ejecutamos el mismo proyecto como servidor Node tradicional.
+if (!isVercel) {
   // Puerto base. En desarrollo prueba puertos siguientes si el 3000 está ocupado.
   const envPort = globalThis.process?.env?.PORT;
   const port = Number(envPort || 3000);
@@ -130,4 +139,4 @@ async function createServer() {
   listen(port);
 }
 
-createServer();
+export default app;

@@ -1,16 +1,64 @@
-# React + Vite
+# MiniHub · Paternostrum
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación React con SSR propio, API Express, sesiones almacenadas en MongoDB
+y recursos de imagen servidos desde Cloudinary.
 
-Currently, two official plugins are available:
+## Desarrollo local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+La aplicación utiliza las variables definidas en `.env`. Este archivo está
+ignorado por Git y nunca debe subirse al repositorio.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Validación
 
-## Expanding the ESLint configuration
+```bash
+npm run lint
+npm run build
+npm run preview
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+El build genera dos salidas:
+
+- `dist/index.html` y `dist/server/`: plantilla y bundle SSR privados.
+- `public/assets/`: JavaScript, CSS e imágenes versionadas para el CDN.
+
+`public/assets/` es generado y está ignorado por Git.
+
+## Despliegue en Vercel
+
+La rama `vercel` exporta Express como una única Vercel Function. La plantilla
+HTML no se publica como archivo estático para que cada navegación conserve el
+SSR y la sesión del usuario.
+
+Configura estas variables en los entornos Preview y Production de Vercel:
+
+```text
+DB
+DB_NAME
+CLOUDINARY_URL
+DEFAULT_ACCESS_NAME
+DEFAULT_ACCESS_PASSWORD
+```
+
+Los nombres de colecciones son opcionales y pueden personalizarse con:
+
+```text
+AUTH_COLLECTION
+USERS_COLLECTION
+KEY_SENTENCES_COLLECTION
+PROFILE_IMAGES_COLLECTION
+EVENTS_COLLECTION
+EVENT_IMAGES_COLLECTION
+SESSIONS_COLLECTION
+```
+
+Para probar el empaquetado de Vercel antes de publicar:
+
+```bash
+vercel pull
+vercel build
+```

@@ -1,7 +1,9 @@
 import 'dotenv/config';
 
 // Configuración centralizada para no leer process.env desde todos los módulos.
-export const isProduction = globalThis.process?.env?.NODE_ENV === 'production';
+export const isProduction =
+  globalThis.process?.env?.NODE_ENV === 'production' ||
+  Boolean(globalThis.process?.env?.VERCEL);
 
 // Datos de conexión a MongoDB.
 export const mongoUri = globalThis.process?.env?.DB;

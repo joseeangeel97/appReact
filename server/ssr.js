@@ -74,9 +74,9 @@ export async function configureSsr(app, httpServer, { rootDir, isProduction }) {
         path.resolve(rootDir, 'dist/index.html'),
         'utf-8',
       );
-      const { render } = await import(
-        path.resolve(rootDir, 'dist/server/entry-server.js')
-      );
+      // El import literal permite que Node File Trace incluya el bundle SSR
+      // dentro de la Function de Vercel.
+      const { render } = await import('../dist/server/entry-server.js');
       // Cada SSR lee la sesión de su propia request, nunca de un estado global.
       const session = req.getPublicSession();
       const appHtml = render(url, { session });
