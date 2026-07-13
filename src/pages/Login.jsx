@@ -48,7 +48,7 @@ export default function Login() {
     .join(' ');
 
   return (
-    <main>
+    <main className={styles.loginMain}>
       <section className={styles['title-section']}>
         <h1>EventHub Paternoster</h1>
         <p>Tu lugar de confianza</p>

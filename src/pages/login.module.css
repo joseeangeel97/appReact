@@ -1,4 +1,7 @@
-main {
+.loginMain {
+  display: grid;
+  place-content: center;
+  text-align: center;
   background-image: url('../assets/fondos/bg2.png');
   background-repeat: no-repeat;
   background-size: cover;

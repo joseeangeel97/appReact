@@ -1,5 +1,8 @@
 /* Fondo y tipografía general de la pantalla de acceso de iniciados. */
 .initiatedMain {
+  display: grid;
+  place-content: center;
+  text-align: center;
   background-image: url('../assets/fondos/bg6.png');
   background-repeat: no-repeat;
   background-size: cover;
